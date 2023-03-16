@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Ticket2GO.Models;
+using WebApp.Models;
 
-namespace Ticket2GO.Controllers
+namespace WebApp.Controllers
 {
     public class HomeController : Controller
     {

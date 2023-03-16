@@ -1,4 +1,4 @@
-namespace Ticket2GO.Models
+namespace WebApp.Models
 {
     public class ErrorViewModel
     {
