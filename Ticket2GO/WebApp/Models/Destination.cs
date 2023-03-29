@@ -3,16 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApp.Models
 {
-    public class Route
+    public class Destination
     {
         [Key]
-        public Guid RouteId { get; set; } = Guid.NewGuid();
+        public Guid DestinationId { get; set; } = Guid.NewGuid();
 
         public Guid BusId { get; set; }
         public Bus Bus { get; set; }
-
-        public Guid TransportCompanyId { get; set; }
-        public TransportCompany TransportCompany { get; set; }
 
         [Required]
         public string StartingDestination { get; set; }
@@ -28,5 +25,7 @@ namespace WebApp.Models
 
         [Required]
         public DateTime TimeOfArrival { get; set; }
+
+        public ICollection<TicketDestination> TicketDestinations { get; set; } = new HashSet<TicketDestination>();
     }
 }

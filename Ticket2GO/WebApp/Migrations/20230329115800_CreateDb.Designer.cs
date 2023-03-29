@@ -11,9 +11,9 @@ using WebApp.Data;
 
 namespace WebApp.Migrations
 {
-    [DbContext(typeof(WebAppContext))]
-    [Migration("20230321190309_Create Initial Migration")]
-    partial class CreateInitialMigration
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20230329115800_CreateDb")]
+    partial class CreateDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -182,13 +182,11 @@ namespace WebApp.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -234,6 +232,137 @@ namespace WebApp.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("WebApp.Models.Admin", b =>
+                {
+                    b.Property<Guid>("AdminId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("AdminId");
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("Admins");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Bus", b =>
+                {
+                    b.Property<Guid>("BusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("SeatsNumber")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("TransportCompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("BusId");
+
+                    b.HasIndex("TransportCompanyId");
+
+                    b.ToTable("Buses");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Destination", b =>
+                {
+                    b.Property<Guid>("DestinationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Departure")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("Duration")
+                        .HasColumnType("time");
+
+                    b.Property<string>("FinalDestination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StartingDestination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeOfArrival")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DestinationId");
+
+                    b.HasIndex("BusId");
+
+                    b.ToTable("Destinations");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Ticket", b =>
+                {
+                    b.Property<Guid>("TicketId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("TicketId");
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("Ticket");
+                });
+
+            modelBuilder.Entity("WebApp.Models.TicketDestination", b =>
+                {
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DestinationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("TicketId", "DestinationId");
+
+                    b.HasIndex("DestinationId");
+
+                    b.ToTable("TicketsDestinations");
+                });
+
+            modelBuilder.Entity("WebApp.Models.TransportCompany", b =>
+                {
+                    b.Property<Guid>("TransportCompanyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Logo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TransportCompanyId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("TransportCompany");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -285,6 +414,93 @@ namespace WebApp.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WebApp.Models.Admin", b =>
+                {
+                    b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Bus", b =>
+                {
+                    b.HasOne("WebApp.Models.TransportCompany", "TransportCompany")
+                        .WithMany("Buses")
+                        .HasForeignKey("TransportCompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TransportCompany");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Destination", b =>
+                {
+                    b.HasOne("WebApp.Models.Bus", "Bus")
+                        .WithMany()
+                        .HasForeignKey("BusId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Bus");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Ticket", b =>
+                {
+                    b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("WebApp.Models.TicketDestination", b =>
+                {
+                    b.HasOne("WebApp.Models.Destination", "Destinations")
+                        .WithMany("TicketDestinations")
+                        .HasForeignKey("DestinationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp.Models.Ticket", "Tickets")
+                        .WithMany("TicketDestinations")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Destinations");
+
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("WebApp.Models.TransportCompany", b =>
+                {
+                    b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Destination", b =>
+                {
+                    b.Navigation("TicketDestinations");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Ticket", b =>
+                {
+                    b.Navigation("TicketDestinations");
+                });
+
+            modelBuilder.Entity("WebApp.Models.TransportCompany", b =>
+                {
+                    b.Navigation("Buses");
                 });
 #pragma warning restore 612, 618
         }

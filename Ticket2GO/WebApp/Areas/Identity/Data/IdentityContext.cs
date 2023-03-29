@@ -6,10 +6,9 @@ using WebApp.Areas.Identity.Data;
 
 namespace WebApp.Data;
 
-public class WebAppContext : IdentityDbContext<ApplicationUser>
+public class IdentityContext : IdentityDbContext<ApplicationUser>
 {
-    public WebAppContext(DbContextOptions<WebAppContext> options)
-        : base(options)
+    public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
     {
     }
 
@@ -28,7 +27,7 @@ public class WebAppContext : IdentityDbContext<ApplicationUser>
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.Property(u => u.FirstName).HasMaxLength(255);
-            builder.Property(u =>u.LastName).HasMaxLength(255);
+            builder.Property(u => u.LastName).HasMaxLength(255);
         }
     }
 }

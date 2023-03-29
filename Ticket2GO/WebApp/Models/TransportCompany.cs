@@ -9,7 +9,7 @@ namespace WebApp.Models
         [Key]
         public Guid TransportCompanyId { get; set; } = Guid.NewGuid();
 
-        public Guid Id  { get; set; }
+        public Guid Id { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
         [Required]
@@ -19,8 +19,7 @@ namespace WebApp.Models
         [Required]
         public byte[] Logo { get; set; }
 
-        public ICollection<Bus> Busses { get; set; }
-        public ICollection<Route> Routes { get; set; }
-  
+        public ICollection<Bus> Buses { get; set; }
+
     }
 }

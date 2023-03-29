@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebApp.Migrations
 {
-    public partial class CreateInitialMigration : Migration
+    public partial class CreateDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,8 +28,8 @@ namespace WebApp.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -67,6 +67,24 @@ namespace WebApp.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Admins",
+                columns: table => new
+                {
+                    AdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Admins", x => x.AdminId);
+                    table.ForeignKey(
+                        name: "FK_Admins_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -156,6 +174,115 @@ namespace WebApp.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Ticket",
+                columns: table => new
+                {
+                    TicketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(5,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ticket", x => x.TicketId);
+                    table.ForeignKey(
+                        name: "FK_Ticket_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TransportCompany",
+                columns: table => new
+                {
+                    TransportCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Logo = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransportCompany", x => x.TransportCompanyId);
+                    table.ForeignKey(
+                        name: "FK_TransportCompany_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Buses",
+                columns: table => new
+                {
+                    BusId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TransportCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SeatsNumber = table.Column<byte>(type: "tinyint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Buses", x => x.BusId);
+                    table.ForeignKey(
+                        name: "FK_Buses_TransportCompany_TransportCompanyId",
+                        column: x => x.TransportCompanyId,
+                        principalTable: "TransportCompany",
+                        principalColumn: "TransportCompanyId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Destinations",
+                columns: table => new
+                {
+                    DestinationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BusId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartingDestination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FinalDestination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Departure = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TimeOfArrival = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Destinations", x => x.DestinationId);
+                    table.ForeignKey(
+                        name: "FK_Destinations_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
+                        principalColumn: "BusId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketsDestinations",
+                columns: table => new
+                {
+                    TicketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DestinationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketsDestinations", x => new { x.TicketId, x.DestinationId });
+                    table.ForeignKey(
+                        name: "FK_TicketsDestinations_Destinations_DestinationId",
+                        column: x => x.DestinationId,
+                        principalTable: "Destinations",
+                        principalColumn: "DestinationId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketsDestinations_Ticket_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Ticket",
+                        principalColumn: "TicketId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Admins_Id",
+                table: "Admins",
+                column: "Id");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,10 +321,38 @@ namespace WebApp.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Buses_TransportCompanyId",
+                table: "Buses",
+                column: "TransportCompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Destinations_BusId",
+                table: "Destinations",
+                column: "BusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ticket_Id",
+                table: "Ticket",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketsDestinations_DestinationId",
+                table: "TicketsDestinations",
+                column: "DestinationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransportCompany_ApplicationUserId",
+                table: "TransportCompany",
+                column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Admins");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -214,7 +369,22 @@ namespace WebApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "TicketsDestinations");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Destinations");
+
+            migrationBuilder.DropTable(
+                name: "Ticket");
+
+            migrationBuilder.DropTable(
+                name: "Buses");
+
+            migrationBuilder.DropTable(
+                name: "TransportCompany");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
