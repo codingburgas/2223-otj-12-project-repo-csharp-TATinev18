@@ -238,13 +238,13 @@ namespace WebApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Id")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AdminId");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Admins");
                 });
@@ -307,7 +307,7 @@ namespace WebApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Id")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -316,7 +316,7 @@ namespace WebApp.Migrations
 
                     b.HasKey("TicketId");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Ticket");
                 });
@@ -343,10 +343,8 @@ namespace WebApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<byte[]>("Logo")
                         .IsRequired()
@@ -418,7 +416,7 @@ namespace WebApp.Migrations
                 {
                     b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -451,7 +449,7 @@ namespace WebApp.Migrations
                 {
                     b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -460,28 +458,30 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.Models.TicketDestination", b =>
                 {
-                    b.HasOne("WebApp.Models.Destination", "Destinations")
+                    b.HasOne("WebApp.Models.Destination", "Destination")
                         .WithMany("TicketDestinations")
                         .HasForeignKey("DestinationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApp.Models.Ticket", "Tickets")
+                    b.HasOne("WebApp.Models.Ticket", "Ticket")
                         .WithMany("TicketDestinations")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Destinations");
+                    b.Navigation("Destination");
 
-                    b.Navigation("Tickets");
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("WebApp.Models.TransportCompany", b =>
                 {
                     b.HasOne("WebApp.Areas.Identity.Data.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ApplicationUser");
                 });

@@ -9,8 +9,10 @@ namespace WebApp.Models
         [Key]
         public Guid TicketId { get; set; } = Guid.NewGuid();
 
-        [ForeignKey("ApplicationUser")]
-        public string Id { get; set; }
+        [Required]
+        public string ApplicationUserId { get; set; }
+
+        [ForeignKey("ApplicationUserId")]
         public ApplicationUser ApplicationUser { get; set; }
 
         [Column(TypeName = "decimal(5, 2)")]

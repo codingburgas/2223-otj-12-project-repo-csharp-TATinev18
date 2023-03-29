@@ -4,10 +4,13 @@ namespace WebApp.Models
 {
     public class TicketDestination
     {
-        public Ticket Tickets { get; set; }
+        public Ticket Ticket { get; set; }
+        
+        [Required]
         public Guid TicketId { get; set; }
 
-        public Destination Destinations { get; set; }
+        public Destination Destination { get; set; }
+        [Required]
         public Guid DestinationId { get; set; }
     }
 }

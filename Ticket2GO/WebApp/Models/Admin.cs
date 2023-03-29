@@ -8,8 +8,10 @@ namespace WebApp.Models
         [Key]
         public Guid AdminId { get; set; } = Guid.NewGuid();
 
-        [ForeignKey("ApplicationUser")]
-        public string Id { get; set; }
+        [Required]
+        public string ApplicationUserId { get; set; }
+
+        [ForeignKey("ApplicationUserId")]
         public ApplicationUser ApplicationUser { get; set; }
     }
 }

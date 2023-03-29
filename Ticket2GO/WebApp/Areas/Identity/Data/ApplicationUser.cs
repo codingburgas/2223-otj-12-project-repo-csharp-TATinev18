@@ -12,4 +12,3 @@ namespace WebApp.Areas.Identity.Data
         public string LastName { get; set; }
     }
 }
-

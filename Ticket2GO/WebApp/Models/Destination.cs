@@ -8,6 +8,7 @@ namespace WebApp.Models
         [Key]
         public Guid DestinationId { get; set; } = Guid.NewGuid();
 
+        [Required]
         public Guid BusId { get; set; }
         public Bus Bus { get; set; }
 
