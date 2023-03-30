@@ -9,11 +9,7 @@ namespace WebApp.Models
         [Key]
         public Guid TransportCompanyId { get; set; } = Guid.NewGuid();
 
-        [Required]
-        public string ApplicationUserId { get; set; }
-
-        [ForeignKey("ApplicationUserId")]
-        public ApplicationUser ApplicationUser { get; set; }
+        public ICollection<TransportCompanyAspNetUser> TransportCompanyAspNetUsers { get; set; }
 
         [Required]
         public string Name { get; set; }
