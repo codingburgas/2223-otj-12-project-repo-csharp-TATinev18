@@ -318,7 +318,7 @@ namespace WebApp.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("WebApp.Models.TicketDestination", b =>
@@ -358,7 +358,7 @@ namespace WebApp.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("TransportCompany");
+                    b.ToTable("TransportCompanies");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

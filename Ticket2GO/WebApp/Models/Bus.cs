@@ -10,6 +10,7 @@ namespace WebApp.Models
         public Guid BusId { get; set; } = Guid.NewGuid();
         [Required]
         public Guid TransportCompanyId { get; set; }
+        [ForeignKey("TransportCompanyId")]
         public TransportCompany TransportCompany { get; set; }
 
         [Column(TypeName = "tinyint")]

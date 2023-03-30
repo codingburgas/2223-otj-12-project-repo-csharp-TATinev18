@@ -26,10 +26,10 @@ namespace WebApp.Data
         }
 
         public DbSet<Admin> Admins { get; set; }
-        public DbSet<TransportCompany> TransportCompany { get; set; }
+        public DbSet<TransportCompany> TransportCompanies { get; set; }
         public DbSet<Bus> Buses { get; set; }
         public DbSet<Destination> Destinations { get; set; }
-        public DbSet<Ticket> Ticket { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketDestination> TicketsDestinations { get; set; }
     }
 }

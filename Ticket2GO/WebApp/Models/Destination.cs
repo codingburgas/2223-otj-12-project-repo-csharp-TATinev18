@@ -10,6 +10,7 @@ namespace WebApp.Models
 
         [Required]
         public Guid BusId { get; set; }
+        [ForeignKey("BusId")]
         public Bus Bus { get; set; }
 
         [Required]

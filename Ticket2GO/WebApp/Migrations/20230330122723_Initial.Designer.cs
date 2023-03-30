@@ -12,8 +12,8 @@ using WebApp.Data;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230329170944_CreateDb")]
-    partial class CreateDb
+    [Migration("20230330122723_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -320,7 +320,7 @@ namespace WebApp.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("WebApp.Models.TicketDestination", b =>
@@ -360,7 +360,7 @@ namespace WebApp.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("TransportCompany");
+                    b.ToTable("TransportCompanies");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
