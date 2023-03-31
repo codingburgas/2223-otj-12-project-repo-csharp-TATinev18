@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
+using WebApp.Data.Configurations;
 using WebApp.Models;
 
 namespace WebApp.Data
@@ -42,6 +43,8 @@ namespace WebApp.Data
                 .WithMany(au => au.TransportConpaniesAspNetUsers)
                 .HasForeignKey(tcu => tcu.ApplicationUserId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
