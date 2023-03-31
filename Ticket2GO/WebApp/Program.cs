@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
@@ -18,8 +19,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 //builder.Services.AddDbContext<IdentityContext>(options =>
 //    options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
+
+builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
+
+builder.Services.AddRazorPages();
 
 var cultureInfo = new CultureInfo("en-US");
 
