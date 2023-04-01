@@ -25,6 +25,28 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @using Microsoft.AspNetCore.Identity
+                        @using WebApp.Areas.Identity.Data
+                        @inject UserManager<ApplicationUser> UserManager
+                        @inject SignInManager<ApplicationUser> SignInManager
+                        @{
+                            var showTransportCompanyLink = false;
+                            if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                if (await UserManager.IsInRoleAsync(user, "Admin") || await UserManager.IsInRoleAsync(user, "Company Manager"))
+                                {
+                                    showTransportCompanyLink = true;
+                                }
+                            }
+                        }
+
+                        @if (showTransportCompanyLink)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Transport Companies</a>
+                            </li>
+                        }
                     </ul>
                 </div>
                 <partial name ="_LoginPartial" />
