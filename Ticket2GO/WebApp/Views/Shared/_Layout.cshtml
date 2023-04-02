@@ -1,5 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,26 +29,21 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        @using Microsoft.AspNetCore.Identity
-                        @using WebApp.Areas.Identity.Data
-                        @inject UserManager<ApplicationUser> UserManager
-                        @inject SignInManager<ApplicationUser> SignInManager
                         @{
-                            var showTransportCompanyLink = false;
+                            bool isAdmin = false;
+                            bool isCompanyManager = false;
+
                             if (SignInManager.IsSignedIn(User))
                             {
-                                var user = await UserManager.GetUserAsync(User);
-                                if (await UserManager.IsInRoleAsync(user, "Admin") || await UserManager.IsInRoleAsync(user, "Company Manager"))
-                                {
-                                    showTransportCompanyLink = true;
-                                }
+                                isAdmin = User.IsInRole("Admin");
+                                isCompanyManager = User.IsInRole("Company Manager");
                             }
                         }
 
-                        @if (showTransportCompanyLink)
+                        @if (isAdmin || isCompanyManager)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Transport Companies</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="@((isAdmin) ? "Index" : "ManagerIndex")">Transport Companies</a>
                             </li>
                         }
                     </ul>

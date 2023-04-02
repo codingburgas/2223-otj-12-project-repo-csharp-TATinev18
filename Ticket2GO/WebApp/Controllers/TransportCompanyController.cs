@@ -11,7 +11,7 @@ using System.IO;
 
 namespace WebApp.Controllers
 {
-    [Authorize(Roles = "Company Manager")]
+    [Authorize(Roles = "Admin,Company Manager")]
     public class TransportCompanyController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,9 +25,35 @@ namespace WebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var transportCompanies = await _context.TransportCompanies.ToListAsync();
-            return View(transportCompanies);
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Contains("Company Manager"))
+            {
+                return RedirectToAction("ManagerIndex");
+            }
+            else if (roles.Contains("Admin"))
+            {
+                return View(await _context.TransportCompanies.ToListAsync());
+            }
+            else
+            {
+                return Forbid();
+            }
         }
+
+        [Authorize(Roles = "Company Manager")]
+        public async Task<IActionResult> ManagerIndex()
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var transportCompanies = _context.TransportCompaniesAspNetUsers
+                                              .Include(tc => tc.TransportCompany)
+                                              .Where(tc => tc.ApplicationUserId == user.Id)
+                                              .Select(tc => tc.TransportCompany);
+
+            return View(await transportCompanies.ToListAsync());
+        }
+
 
         [HttpGet]
         public IActionResult Create()
@@ -41,9 +67,13 @@ namespace WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                using var memoryStream = new MemoryStream();
-                await viewModel.Logo.CopyToAsync(memoryStream);
-                byte[] logoBytes = memoryStream.ToArray();
+                byte[] logoBytes;
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await viewModel.Logo.CopyToAsync(memoryStream);
+                    logoBytes = memoryStream.ToArray();
+                }
 
                 var transportCompany = new TransportCompany
                 {
@@ -53,9 +83,38 @@ namespace WebApp.Controllers
 
                 _context.Add(transportCompany);
                 await _context.SaveChangesAsync();
+
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                var transportCompanyAspNetUser = new TransportCompanyAspNetUser
+                {
+                    TransportCompanyId = transportCompany.TransportCompanyId,
+                    ApplicationUserId = user.Id
+                };
+
+                _context.TransportCompaniesAspNetUsers.Add(transportCompanyAspNetUser);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(viewModel);
+        }
+
+
+        [Authorize(Roles = "Company Manager")]
+        public async Task<IActionResult> MyTransportCompany()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var userTransportCompany = _context.TransportCompaniesAspNetUsers
+                .FirstOrDefault(tc => tc.ApplicationUserId == currentUser.Id);
+
+            if (userTransportCompany == null)
+            {
+                return NotFound();
+            }
+
+            return View("Details", userTransportCompany.TransportCompany);
         }
     }
 }
