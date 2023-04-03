@@ -116,5 +116,49 @@ namespace WebApp.Controllers
 
             return View("Details", userTransportCompany.TransportCompany);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Buses(Guid transportCompanyId)
+        {
+            var transportCompany = await _context.TransportCompanies.FindAsync(transportCompanyId);
+            if (transportCompany == null)
+            {
+                return NotFound();
+            }
+
+            var buses = _context.Buses.Where(b => b.TransportCompanyId == transportCompanyId);
+            ViewData["TransportCompanyName"] = transportCompany.Name;
+            ViewData["TransportCompanyId"] = transportCompanyId;
+
+            return View(await buses.ToListAsync());
+        }
+
+        [HttpGet]
+        public IActionResult CreateBus(Guid transportCompanyId)
+        {
+            ViewData["TransportCompanyId"] = transportCompanyId;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBus(Guid transportCompanyId, CreateBusViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var bus = new Bus
+                {
+                    Name = viewModel.Name,
+                    SeatsNumber = viewModel.SeatsNumber,
+                    TransportCompanyId = transportCompanyId
+                };
+                _context.Add(bus);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Buses), new { transportCompanyId });
+            }
+
+            ViewData["TransportCompanyId"] = transportCompanyId;
+            return View(viewModel);
+        }
     }
 }

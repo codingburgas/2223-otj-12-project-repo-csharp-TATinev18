@@ -30,21 +30,23 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         @{
-                            bool isAdmin = false;
-                            bool isCompanyManager = false;
-
+                            var isAdmin = User.IsInRole("Admin");
+                            var isCompanyManager = User.IsInRole("Company Manager");
                             if (SignInManager.IsSignedIn(User))
                             {
-                                isAdmin = User.IsInRole("Admin");
-                                isCompanyManager = User.IsInRole("Company Manager");
+                                if (isAdmin)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Transport Companies</a>
+                                    </li>
+                                }
+                                else if (isCompanyManager)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="ManagerIndex">Transport Companies</a>
+                                    </li>
+                                }
                             }
-                        }
-
-                        @if (isAdmin || isCompanyManager)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="@((isAdmin) ? "Index" : "ManagerIndex")">Transport Companies</a>
-                            </li>
                         }
                     </ul>
                 </div>
