@@ -1,0 +1,89 @@
+﻿@model WebApp.ViewModels.ManageUserRolesViewModel
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2>Edit User</h2>
+
+<form asp-action="EditUser" method="post">
+    @Html.HiddenFor(m => m.UserId)
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <!-- Other form fields -->
+
+    <div class="form-group">
+        <label>Roles</label>
+        <div id="rolesList">
+            @foreach (var role in Model.Roles)
+            {
+                <span class="badge badge-primary">@role <button type="button" class="close" data-role="@role">&times;</button></span>
+            }
+        </div>
+        <button type="button" id="addRoleButton" class="btn btn-primary mt-2">Add Role</button>
+        <select id="roleSelect" class="form-control d-none">
+            @foreach (var role in Model.AvailableRoles)
+            {
+                <option>@role</option>
+            }
+        </select>
+        <input type="hidden" asp-for="Roles" id="rolesInput" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var addRoleButton = document.getElementById('addRoleButton');
+            var roleSelect = document.getElementById('roleSelect');
+            var rolesList = document.getElementById('rolesList');
+            var rolesInput = document.getElementById('rolesInput');
+
+            addRoleButton.addEventListener('click', function () {
+                roleSelect.classList.toggle('d-none');
+            });
+
+            roleSelect.addEventListener('change', function () {
+                var selectedRole = roleSelect.value;
+                var badge = document.createElement('span');
+                badge.className = 'badge badge-primary';
+                badge.textContent = selectedRole;
+
+                var closeButton = document.createElement('button');
+                closeButton.type = 'button';
+                closeButton.className = 'close';
+                closeButton.setAttribute('data-role', selectedRole);
+                closeButton.innerHTML = '&times;';
+
+                closeButton.addEventListener('click', function () {
+                    badge.remove();
+                    updateRolesInput();
+                });
+
+                badge.appendChild(closeButton);
+                rolesList.appendChild(badge);
+                roleSelect.value = '';
+                roleSelect.classList.add('d-none');
+                updateRolesInput();
+            });
+
+            rolesList.addEventListener('click', function (event) {
+                if (event.target.classList.contains('close')) {
+                    event.target.parentElement.remove();
+                    updateRolesInput();
+                }
+            });
+
+            function updateRolesInput() {
+                var roles = Array.from(rolesList.querySelectorAll('.badge')).map(function (badge) {
+                    return badge.textContent.trim();
+                });
+
+                rolesInput.value = JSON.stringify(roles);
+            }
+        });
+    </script>
+}

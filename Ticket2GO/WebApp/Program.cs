@@ -20,7 +20,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 //    options.UseSqlServer(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
 
 
 builder.Services.AddRazorPages();
