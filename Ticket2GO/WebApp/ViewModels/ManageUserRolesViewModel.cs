@@ -9,5 +9,6 @@
         public string Password { get; set; }
         public IList<string> Roles { get; set; }
         public IList<string> AvailableRoles { get; set; }
+        public IList<string> SelectedRoles { get; set; }
     }
 }

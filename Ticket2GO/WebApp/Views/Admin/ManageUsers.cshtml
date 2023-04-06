@@ -24,12 +24,7 @@
                 <td>@user.FirstName</td>
                 <td>@user.LastName</td>
                 <td>
-                    <ul>
-                        @foreach (var role in user.Roles)
-                        {
-                            <li>@role</li>
-                        }
-                    </ul>
+                    @string.Join(", ", user.Roles)
                 </td>
                 <td>
                     <a asp-action="EditUser" asp-route-userId="@user.UserId" class="btn btn-primary">Edit</a>

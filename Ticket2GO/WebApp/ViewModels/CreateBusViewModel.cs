@@ -10,7 +10,7 @@ namespace WebApp.ViewModels
         public string Name { get; set; }
 
         [Required]
-        public int SeatsNumber { get; set; }
+        public int SeatsNumber { get; set; }    
 
         public Guid TransportCompanyId { get; set; }
     }

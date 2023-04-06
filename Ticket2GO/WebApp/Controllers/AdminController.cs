@@ -70,8 +70,6 @@ namespace WebApp.Controllers
                 AvailableRoles = availableRoles
             };
 
-            ViewBag.RoleSelectListItems = await GetRoleSelectListItemsAsync();
-
             return View(viewModel);
         }
 
@@ -122,40 +120,13 @@ namespace WebApp.Controllers
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
-            var rolesToAdd = model.Roles.Except(currentRoles).ToList();
-            var rolesToRemove = currentRoles.Except(model.Roles).ToList();
+            var rolesToAdd = model.SelectedRoles.Except(currentRoles);
+            var rolesToRemove = currentRoles.Except(model.SelectedRoles);
 
             await _userManager.AddToRolesAsync(user, rolesToAdd);
             await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
 
-            if (rolesToRemove.Count > 0)
-            {
-                result = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-                if (!result.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "An error occurred while updating the user roles.");
-                    return View(model);
-                }
-            }
-
-            if (rolesToAdd.Count > 0)
-            {
-                result = await _userManager.AddToRolesAsync(user, rolesToAdd);
-                if (!result.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "An error occurred while updating the user roles.");
-                    return View(model);
-                }
-            }
-
             return RedirectToAction(nameof(ManageUsers));
-        }
-
-        private async Task<IEnumerable<SelectListItem>> GetRoleSelectListItemsAsync()
-        {
-            var allRoles = await _roleManager.Roles.ToListAsync();
-            var selectListItems = allRoles.Select(r => new SelectListItem { Value = r.Name, Text = r.Name }).ToList();
-            return selectListItems;
         }
 
     }
