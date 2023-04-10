@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.Design;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +24,6 @@ namespace WebApp.Controllers
             _userManager = userManager;
         }
 
-        // GET: Destination
         public async Task<IActionResult> Index()
         {
             var destinations = await _context.Destinations
@@ -83,6 +84,7 @@ namespace WebApp.Controllers
                 SelectedCompanyId = companyId,
                 Buses = busSelectListItems
             };
+            TempData["CompanyId"] = companyId.ToString();
 
             return View(viewModel);
         }
@@ -91,32 +93,148 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateDestinationViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && viewModel.SelectedBusId.HasValue)
             {
-                if (!viewModel.SelectedBusId.HasValue)
+                var destinations = new List<Destination>();
+
+                if (viewModel.RepeatingDayOfWeek.HasValue && viewModel.NumberOfRepetitions.HasValue)
                 {
-                    ModelState.AddModelError("SelectedBusId", "The Bus field is required.");
-                    ViewData["BusId"] = new SelectList(_context.Buses, "BusId", "Name", viewModel.SelectedBusId);
-                    ViewData["CompanyId"] = new SelectList(_context.TransportCompanies, "CompanyId", "Name", viewModel.SelectedCompanyId);
-                    return View(viewModel);
+                    var currentDate = viewModel.Departure;
+                    int repetitions = 0;
+
+                    while (repetitions < viewModel.NumberOfRepetitions.Value)
+                    {
+                        if (currentDate.DayOfWeek == viewModel.RepeatingDayOfWeek.Value)
+                        {
+                            destinations.Add(new Destination
+                            {
+                                StartingDestination = viewModel.StartingDestination,
+                                FinalDestination = viewModel.FinalDestination,
+                                Duration = viewModel.Duration,
+                                Departure = currentDate,
+                                TimeOfArrival = currentDate.Add(viewModel.Duration),
+                                BusId = viewModel.SelectedBusId.Value,
+                                RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek
+                            });
+
+                            repetitions++;
+                        }
+
+                        currentDate = currentDate.AddDays(1);
+                    }
+                }
+                else
+                {
+                    destinations.Add(new Destination
+                    {
+                        StartingDestination = viewModel.StartingDestination,
+                        FinalDestination = viewModel.FinalDestination,
+                        Duration = viewModel.Duration,
+                        Departure = viewModel.Departure,
+                        TimeOfArrival = viewModel.TimeOfArrival,
+                        BusId = viewModel.SelectedBusId.Value,
+                        RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek
+                    });
                 }
 
-                var destination = new Destination
-                {
-                    StartingDestination = viewModel.StartingDestination,
-                    FinalDestination = viewModel.FinalDestination,
-                    Duration = viewModel.Duration,
-                    Departure = viewModel.Departure,
-                    TimeOfArrival = viewModel.TimeOfArrival,
-                    BusId = viewModel.SelectedBusId.Value
-                };
-                _context.Add(destination);
+                _context.AddRange(destinations);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                ModelState.AddModelError("SelectedBusId", "Bus is required");
+            }
+
             ViewData["BusId"] = new SelectList(_context.Buses, "BusId", "Name", viewModel.SelectedBusId);
             ViewData["CompanyId"] = new SelectList(_context.TransportCompanies, "CompanyId", "Name", viewModel.SelectedCompanyId);
+            viewModel.Buses = _context.Buses
+                .Where(b => b.TransportCompanyId == new Guid(TempData["CompanyId"].ToString()))
+                .Select(b => new SelectListItem
+                {
+                    Value = b.BusId.ToString(),
+                    Text = b.Name
+                }).ToList();
+
             return View(viewModel);
         }
+
+        public async Task<IActionResult> Details(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var destination = await _context.Destinations
+                .Include(d => d.Bus)
+                .FirstOrDefaultAsync(m => m.DestinationId == id);
+
+            if (destination == null)
+            {
+                return NotFound();
+            }
+
+            return View(destination);
+        }
+
+        public async Task<IActionResult> Delete(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var destination = await _context.Destinations
+                .Include(d => d.Bus)
+                .FirstOrDefaultAsync(m => m.DestinationId == id);
+
+            if (destination == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.DeleteAllRepetitions = false;
+
+            return View(destination);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id, bool deleteAllRepetitions = false)
+        {
+            var destination = await _context.Destinations.FindAsync(id);
+
+            if (destination == null)
+            {
+                return NotFound();
+            }
+
+            _context.Destinations.Remove(destination);
+
+            if (deleteAllRepetitions)
+            {
+                var repeatedDestinations = _context.Destinations
+                    .Where(d => d.StartingDestination == destination.StartingDestination &&
+                                d.FinalDestination == destination.FinalDestination &&
+                                d.BusId == destination.BusId &&
+                                d.Duration == destination.Duration &&
+                                d.RepeatingDayOfWeek == destination.RepeatingDayOfWeek)
+                    .ToList();
+
+                foreach (var repeatedDestination in repeatedDestinations)
+                {
+                    int daysDifference = (repeatedDestination.Departure - destination.Departure).Days;
+                    if (daysDifference % 7 == 0)
+                    {
+                        _context.Destinations.Remove(repeatedDestination);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

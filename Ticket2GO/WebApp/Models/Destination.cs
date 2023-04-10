@@ -28,6 +28,8 @@ namespace WebApp.Models
         [Required]
         public DateTime TimeOfArrival { get; set; }
 
+        public DayOfWeek? RepeatingDayOfWeek { get; set; }
+
         public ICollection<TicketDestination> TicketDestinations { get; set; } = new HashSet<TicketDestination>();
     }
 }

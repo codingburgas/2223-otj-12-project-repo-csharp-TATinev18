@@ -34,6 +34,14 @@ namespace WebApp.ViewModels
         [Display(Name = "Bus")]
         public Guid? SelectedBusId { get; set; }
 
+        [Display(Name = "Repeating Day Of Week")]
+        public DayOfWeek? RepeatingDayOfWeek { get; set; }
+
+        [Display(Name = "Number of Repetitions")]
+        public int? NumberOfRepetitions { get; set; }
+
+        public bool DeleteAllRepetitions { get; set; }
+
         public IEnumerable<SelectListItem> Buses { get; set; } = Enumerable.Empty<SelectListItem>();
 
     }
