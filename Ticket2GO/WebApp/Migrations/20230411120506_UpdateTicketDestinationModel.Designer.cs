@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApp.Data;
 
@@ -11,9 +12,10 @@ using WebApp.Data;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230411120506_UpdateTicketDestinationModel")]
+    partial class UpdateTicketDestinationModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace WebApp.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1fed302b-1702-4117-a010-1fcdd6796ab1",
-                            ConcurrencyStamp = "f488fe2d-b140-4159-90bb-f1f714b4c289",
+                            Id = "50723e7e-1e97-47ca-a82e-a64ed13b54c5",
+                            ConcurrencyStamp = "dee6c16e-db51-41a7-bbb6-f9855400375b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "8ba7834d-d348-4323-a4cf-4e99ad0b8e3c",
-                            ConcurrencyStamp = "9376bad6-495a-4533-9482-5a085ff72760",
+                            Id = "910c74c7-17b1-41d4-be56-ab1bfc5f0c1b",
+                            ConcurrencyStamp = "fe38c179-d32f-4856-9900-d98d36e0241d",
                             Name = "Company Manager",
                             NormalizedName = "COMPANY MANAGER"
                         },
                         new
                         {
-                            Id = "4f2b18d1-6875-44da-a65c-14b24004a106",
-                            ConcurrencyStamp = "38005b19-0d0c-4d47-80ad-db6c9842058b",
+                            Id = "d83a0b7a-a98c-4675-a708-d15d44089391",
+                            ConcurrencyStamp = "a1cd6160-452a-4a1a-9e90-cd1abdce71e1",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "317317c3-7ff5-4136-b542-de8dc9083c5d",
-                            ConcurrencyStamp = "ed883855-24d7-4872-b013-c0828c6cc4f6",
+                            Id = "8045c328-1bda-4556-a3a6-6a074a17bab4",
+                            ConcurrencyStamp = "e347c9d1-17e2-4083-9ffe-2a343f18c61c",
                             Name = "Unassigned",
                             NormalizedName = "UNASSIGNED"
                         });
@@ -320,9 +322,6 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(6,2)");
-
                     b.Property<int?>("RepeatingDayOfWeek")
                         .HasColumnType("int");
 
@@ -350,8 +349,8 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(6,2)");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("TicketId");
 

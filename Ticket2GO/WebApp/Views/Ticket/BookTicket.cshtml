@@ -1,0 +1,56 @@
+﻿@model WebApp.ViewModels.BookTicketViewModel
+@{
+    ViewData["Title"] = "Book Ticket";
+}
+
+<h1>Book Ticket</h1>
+
+<form asp-controller="Ticket" asp-action="BookTicket" method="post">
+    <div>
+        <label asp-for="SelectedCompanyId">Filter by Company:</label>
+        <select asp-for="SelectedCompanyId" asp-items="Model.Companies"></select>
+    </div>
+    <div>
+        <label for="startingDestination">Starting Destination:</label>
+        <input type="text" id="startingDestination" name="startingDestination" value="@Model.SelectedStartingDestination" />
+    </div>
+    <div>
+        <label for="finalDestination">Final Destination:</label>
+        <input type="text" id="finalDestination" name="finalDestination" value="@Model.SelectedFinalDestination" />
+    </div>
+    <div>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <button type="submit">Filter Results</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Starting Destination</th>
+            <th>Final Destination</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>Price</th>
+            <th>Transport Company</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var destination in Model.Destinations)
+        {
+            <tr>
+                <td>@destination.StartingDestination</td>
+                <td>@destination.FinalDestination</td>
+                <td>@destination.Departure</td>
+                <td>@destination.TimeOfArrival</td>
+                <td>@destination.Price</td>
+                <td>@destination.Bus.TransportCompany.Name</td>
+                <td>
+                    <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-destinationId="@destination.DestinationId" class="btn btn-primary">Book</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

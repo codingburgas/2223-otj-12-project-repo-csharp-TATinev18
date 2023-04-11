@@ -40,6 +40,11 @@ namespace WebApp.ViewModels
         [Display(Name = "Number of Repetitions")]
         public int? NumberOfRepetitions { get; set; }
 
+        [Required]
+        [DataType(DataType.Currency)]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
+        public decimal TotalPrice { get; set; }
+
         public bool DeleteAllRepetitions { get; set; }
 
         public IEnumerable<SelectListItem> Buses { get; set; } = Enumerable.Empty<SelectListItem>();

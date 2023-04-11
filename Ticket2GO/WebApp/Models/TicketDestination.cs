@@ -10,7 +10,11 @@ namespace WebApp.Models
         public Guid TicketId { get; set; }
 
         public Destination Destination { get; set; }
+
         [Required]
         public Guid DestinationId { get; set; }
+
+        [Required]
+        public int? SeatNumber { get; set; }
     }
 }

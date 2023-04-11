@@ -30,6 +30,10 @@ namespace WebApp.Models
 
         public DayOfWeek? RepeatingDayOfWeek { get; set; }
 
+        [Column(TypeName = "decimal(6, 2)")]
+        [Required]
+        public decimal Price { get; set; }
+
         public ICollection<TicketDestination> TicketDestinations { get; set; } = new HashSet<TicketDestination>();
     }
 }

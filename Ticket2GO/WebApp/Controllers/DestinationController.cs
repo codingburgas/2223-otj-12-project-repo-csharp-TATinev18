@@ -114,7 +114,8 @@ namespace WebApp.Controllers
                                 Departure = currentDate,
                                 TimeOfArrival = currentDate.Add(viewModel.Duration),
                                 BusId = viewModel.SelectedBusId.Value,
-                                RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek
+                                RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
+                                Price = viewModel.TotalPrice
                             });
 
                             repetitions++;

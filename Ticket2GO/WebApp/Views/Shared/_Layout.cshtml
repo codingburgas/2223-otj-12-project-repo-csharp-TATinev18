@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Book Ticket</a>
+                        </li>
                         @{
                             var isAdmin = User.IsInRole("Admin");
                             var isCompanyManager = User.IsInRole("Company Manager");

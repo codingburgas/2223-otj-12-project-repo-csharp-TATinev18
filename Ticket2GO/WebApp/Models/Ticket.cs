@@ -15,9 +15,9 @@ namespace WebApp.Models
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Column(TypeName = "decimal(5, 2)")]
+        [Column(TypeName = "decimal(6, 2)")]
         [Required]
-        public decimal Price { get; set; }
+        public decimal TotalPrice { get; set; }
 
         public ICollection<TicketDestination> TicketDestinations { get; set; } = new HashSet<TicketDestination>();
     }

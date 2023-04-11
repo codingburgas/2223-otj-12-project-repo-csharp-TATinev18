@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApp.Data;
 
@@ -11,9 +12,10 @@ using WebApp.Data;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230411095212_UpdateTicketDestinationTable")]
+    partial class UpdateTicketDestinationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace WebApp.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1fed302b-1702-4117-a010-1fcdd6796ab1",
-                            ConcurrencyStamp = "f488fe2d-b140-4159-90bb-f1f714b4c289",
+                            Id = "e6e1a46f-4a9f-4b8a-94d2-f994856765ad",
+                            ConcurrencyStamp = "0ea98ce7-9831-42e4-8e8b-e4ff61e919a7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "8ba7834d-d348-4323-a4cf-4e99ad0b8e3c",
-                            ConcurrencyStamp = "9376bad6-495a-4533-9482-5a085ff72760",
+                            Id = "febe12b6-5fcb-4349-a4ab-92b4a6ced624",
+                            ConcurrencyStamp = "24700fcd-65c5-4519-9dfd-ad7876cffd40",
                             Name = "Company Manager",
                             NormalizedName = "COMPANY MANAGER"
                         },
                         new
                         {
-                            Id = "4f2b18d1-6875-44da-a65c-14b24004a106",
-                            ConcurrencyStamp = "38005b19-0d0c-4d47-80ad-db6c9842058b",
+                            Id = "24d083d2-adb2-4c9d-9fd5-ed3726c42d20",
+                            ConcurrencyStamp = "ee798def-b2d6-4f37-a7e2-55849422f7d9",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "317317c3-7ff5-4136-b542-de8dc9083c5d",
-                            ConcurrencyStamp = "ed883855-24d7-4872-b013-c0828c6cc4f6",
+                            Id = "14211ce7-a33a-456f-b05e-062a8eac82ca",
+                            ConcurrencyStamp = "286ea1b7-691c-4c3c-a28e-d6ae2299747b",
                             Name = "Unassigned",
                             NormalizedName = "UNASSIGNED"
                         });
@@ -320,9 +322,6 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(6,2)");
-
                     b.Property<int?>("RepeatingDayOfWeek")
                         .HasColumnType("int");
 
@@ -350,8 +349,8 @@ namespace WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(6,2)");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("TicketId");
 
@@ -368,8 +367,7 @@ namespace WebApp.Migrations
                     b.Property<Guid>("DestinationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("SeatNumber")
-                        .IsRequired()
+                    b.Property<int>("SeatNumber")
                         .HasColumnType("int");
 
                     b.HasKey("TicketId", "DestinationId");

@@ -19,7 +19,8 @@
                 <th>Departure</th>
                 <th>Time of Arrival</th>
                 <th>Bus Name</th>
-                <th>Transport Company</th> <!-- Add this line -->
+                <th>Transport Company</th>
+                <th>Price</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -33,7 +34,8 @@
                     <td>@item.Departure</td>
                     <td>@item.TimeOfArrival</td>
                     <td>@item.Bus.Name</td>
-                    <td>@item.Bus.TransportCompany.Name</td> <!-- Add this line -->
+                    <td>@item.Bus.TransportCompany.Name</td>
+                    <td>@item.Price</td>
                     <td>
                         <a asp-action="Edit" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-secondary">Edit</a>
                         <a asp-action="Details" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-info">Details</a>
