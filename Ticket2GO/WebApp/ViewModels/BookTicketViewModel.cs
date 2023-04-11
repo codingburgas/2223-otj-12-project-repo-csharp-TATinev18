@@ -11,10 +11,13 @@ namespace WebApp.ViewModels
         {
             Destinations = new List<Destination>();
             Companies = new SelectList(new List<TransportCompany>(), "Id", "Name");
+            var defaultOption = new SelectListItem { Value = "", Text = "-- Select a company --", Selected = true };
+            var companiesList = new List<SelectListItem> { defaultOption };
+            Companies = new SelectList(companiesList.Concat(Companies), "Value", "Text");
         }
 
         public DateTime SelectedDate { get; set; }
-        public Guid SelectedCompanyId { get; set; }
+        public Guid? SelectedCompanyId { get; set; }
         public Guid SelectedOriginDestinationId { get; set; }
         public string SelectedStartingDestination { get; set; }
         public string SelectedFinalDestination { get; set; }

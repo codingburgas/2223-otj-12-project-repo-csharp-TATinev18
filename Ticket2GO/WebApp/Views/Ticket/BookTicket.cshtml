@@ -5,10 +5,15 @@
 
 <h1>Book Ticket</h1>
 
-<form asp-controller="Ticket" asp-action="BookTicket" method="post">
+<form asp-controller="Ticket" asp-action="BookTicket" method="get">
     <div>
-        <label asp-for="SelectedCompanyId">Filter by Company:</label>
-        <select asp-for="SelectedCompanyId" asp-items="Model.Companies"></select>
+        <select asp-for="SelectedCompanyId">
+            <option value="">-- Select a company --</option>
+            @foreach (var item in Model.Companies)
+            {
+                <option value="@item.Value" selected="@(item.Value == Model.SelectedCompanyId?.ToString())">@item.Text</option>
+            }
+        </select>
     </div>
     <div>
         <label for="startingDestination">Starting Destination:</label>
@@ -19,11 +24,12 @@
         <input type="text" id="finalDestination" name="finalDestination" value="@Model.SelectedFinalDestination" />
     </div>
     <div>
-        <label for="date">Date:</label>
+        <label for="date">Date of Travel:</label>
         <input type="date" id="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
     </div>
     <button type="submit">Filter Results</button>
 </form>
+
 
 <table class="table">
     <thead>

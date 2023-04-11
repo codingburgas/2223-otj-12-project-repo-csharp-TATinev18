@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -38,43 +39,37 @@ namespace WebApp.Controllers
             return new SelectList(availableDestinations, "Value", "Text");
         }
 
-        private IQueryable<Destination> FilterDestinations(string transportCompanyId, string startingDestination, string finalDestination, DateTime? date)
+        [HttpGet]
+        public async Task<IActionResult> BookTicket(string transportCompanyId, string startingDestination, string finalDestination, DateTime? date)
         {
-            var query = _context.Destinations.Include(d => d.Bus).ThenInclude(b => b.TransportCompany).AsQueryable();
-
-            if (!string.IsNullOrEmpty(transportCompanyId))
-            {
-                var companyIdGuid = Guid.Parse(transportCompanyId);
-                query = query.Where(d => d.Bus.TransportCompanyId == companyIdGuid);
-            }
-
+            IQueryable<Destination> destinations = _context.Destinations.Include(d => d.Bus).ThenInclude(b => b.TransportCompany);
 
             if (!string.IsNullOrEmpty(startingDestination))
             {
-                query = query.Where(d => d.StartingDestination.Contains(startingDestination));
+                destinations = destinations.Where(d => d.StartingDestination.Contains(startingDestination));
             }
 
             if (!string.IsNullOrEmpty(finalDestination))
             {
-                query = query.Where(d => d.FinalDestination.Contains(finalDestination));
+                destinations = destinations.Where(d => d.FinalDestination.Contains(finalDestination));
+            }
+
+            if (!string.IsNullOrEmpty(transportCompanyId))
+            {
+                Guid parsedTransportCompanyId = Guid.Parse(transportCompanyId);
+                destinations = destinations.Where(d => d.Bus.TransportCompanyId == parsedTransportCompanyId);
             }
 
             if (date.HasValue)
             {
-                query = query.Where(d => d.Departure.Date == date.Value.Date);
+                destinations = destinations.Where(d => d.Departure.Date == date.Value.Date);
             }
 
-            return query;
-        }
+            var filteredDestinations = await destinations.ToListAsync();
 
-        // Modify the BookTicket GET action
-        [HttpGet]
-        public async Task<IActionResult> BookTicket(string transportCompanyId, string startingDestination, string finalDestination, DateTime? date)
-        {
-            var destinations = await FilterDestinations(transportCompanyId, startingDestination, finalDestination, date).ToListAsync();
             var model = new BookTicketViewModel
             {
-                Destinations = destinations ?? new List<Destination>(),
+                Destinations = filteredDestinations,
                 Companies = new SelectList(_context.TransportCompanies, "TransportCompanyId", "Name"),
                 SelectedCompanyId = string.IsNullOrEmpty(transportCompanyId) ? Guid.Empty : Guid.Parse(transportCompanyId),
                 SelectedStartingDestination = startingDestination,
@@ -85,9 +80,6 @@ namespace WebApp.Controllers
             return View(model);
         }
 
-
-
-        // Add a new action to select seats and show the price
         [HttpGet]
         public async Task<IActionResult> SelectSeat(Guid id)
         {
@@ -117,7 +109,6 @@ namespace WebApp.Controllers
             return View(model);
         }
 
-        // Add a new action to confirm the booking
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
