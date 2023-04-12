@@ -3,60 +3,63 @@
     ViewData["Title"] = "Book Ticket";
 }
 
-<h1>Book Ticket</h1>
+<div class="container">
+    <h1 class="my-4">Book Ticket</h1>
 
-<form asp-controller="Ticket" asp-action="BookTicket" method="get">
-    <div>
-        <select asp-for="SelectedCompanyId">
-            <option value="">-- Select a company --</option>
-            @foreach (var item in Model.Companies)
-            {
-                <option value="@item.Value" selected="@(item.Value == Model.SelectedCompanyId?.ToString())">@item.Text</option>
-            }
-        </select>
-    </div>
-    <div>
-        <label for="startingDestination">Starting Destination:</label>
-        <input type="text" id="startingDestination" name="startingDestination" value="@Model.SelectedStartingDestination" />
-    </div>
-    <div>
-        <label for="finalDestination">Final Destination:</label>
-        <input type="text" id="finalDestination" name="finalDestination" value="@Model.SelectedFinalDestination" />
-    </div>
-    <div>
-        <label for="date">Date of Travel:</label>
-        <input type="date" id="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
-    </div>
-    <button type="submit">Filter Results</button>
-</form>
+    <form asp-controller="Ticket" asp-action="BookTicket" method="get">
+        <div class="form-group">
+            <label for="selectedCompanyId">Company:</label>
+            <select class="form-control" id="selectedCompanyId" asp-for="SelectedCompanyId">
+                <option value="">-- Select a company --</option>
+                @foreach (var item in Model.Companies)
+                {
+                    <option value="@item.Value" selected="@(item.Value == Model.SelectedCompanyId?.ToString())">@item.Text</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="startingDestination">Starting Destination:</label>
+            <input class="form-control" type="text" id="startingDestination" name="startingDestination" value="@Model.SelectedStartingDestination" />
+        </div>
+        <div class="form-group">
+            <label for="finalDestination">Final Destination:</label>
+            <input class="form-control" type="text" id="finalDestination" name="finalDestination" value="@Model.SelectedFinalDestination" />
+        </div>
+        <div class="form-group">
+            <label for="date">Date of Travel:</label>
+            <input class="form-control" type="date" id="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        </div>
+        <br>
+        <button class="btn btn-primary" type="submit">Filter Results</button>
+    </form>
 
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Starting Destination</th>
-            <th>Final Destination</th>
-            <th>Departure</th>
-            <th>Arrival</th>
-            <th>Price</th>
-            <th>Transport Company</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var destination in Model.Destinations)
-        {
+    <table class="table table-striped mt-4">
+        <thead>
             <tr>
-                <td>@destination.StartingDestination</td>
-                <td>@destination.FinalDestination</td>
-                <td>@destination.Departure</td>
-                <td>@destination.TimeOfArrival</td>
-                <td>@destination.Price</td>
-                <td>@destination.Bus.TransportCompany.Name</td>
-                <td>
-                    <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-destinationId="@destination.DestinationId" class="btn btn-primary">Book</a>
-                </td>
+                <th>Starting Destination</th>
+                <th>Final Destination</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Price</th>
+                <th>Transport Company</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var destination in Model.Destinations)
+            {
+                <tr>
+                    <td>@destination.StartingDestination</td>
+                    <td>@destination.FinalDestination</td>
+                    <td>@destination.Departure</td>
+                    <td>@destination.TimeOfArrival</td>
+                    <td>@destination.Price</td>
+                    <td>@destination.Bus.TransportCompany.Name</td>
+                    <td>
+                        <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-destinationId="@destination.DestinationId" class="btn btn-primary">Book</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
