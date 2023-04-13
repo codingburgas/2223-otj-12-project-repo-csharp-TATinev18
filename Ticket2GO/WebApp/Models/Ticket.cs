@@ -19,6 +19,9 @@ namespace WebApp.Models
         [Required]
         public decimal TotalPrice { get; set; }
 
+        [Required]
+        public int? SeatNumber { get; set; }
+
         public ICollection<TicketDestination> TicketDestinations { get; set; } = new HashSet<TicketDestination>();
     }
 }

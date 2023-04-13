@@ -13,8 +13,5 @@ namespace WebApp.Models
 
         [Required]
         public Guid DestinationId { get; set; }
-
-        [Required]
-        public int? SeatNumber { get; set; }
     }
 }

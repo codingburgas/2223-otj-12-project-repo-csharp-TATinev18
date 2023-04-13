@@ -56,7 +56,7 @@
                     <td>@destination.Price</td>
                     <td>@destination.Bus.TransportCompany.Name</td>
                     <td>
-                        <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-destinationId="@destination.DestinationId" class="btn btn-primary">Book</a>
+                        <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-id="@destination.DestinationId" class="btn btn-primary">Book</a>
                     </td>
                 </tr>
             }

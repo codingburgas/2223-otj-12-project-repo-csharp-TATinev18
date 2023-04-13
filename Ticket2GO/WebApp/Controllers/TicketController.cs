@@ -112,12 +112,18 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
+            ModelState.Remove("StartingDestination");
+            ModelState.Remove("FinalDestination");
+            ModelState.Remove("BusName");
+            ModelState.Remove("TransportCompany");
+
             if (ModelState.IsValid)
             {
                 var ticket = new Ticket
                 {
                     ApplicationUserId = _userManager.GetUserId(User),
-                    TotalPrice = model.Price
+                    TotalPrice = model.Price,
+                    SeatNumber = model.SelectedSeat
                 };
 
                 _context.Tickets.Add(ticket);
@@ -126,8 +132,7 @@ namespace WebApp.Controllers
                 var ticketDestination = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
-                    DestinationId = model.DestinationId,
-                    SeatNumber = model.SelectedSeat
+                    DestinationId = model.DestinationId
                 };
 
                 _context.TicketsDestinations.Add(ticketDestination);
@@ -150,7 +155,8 @@ namespace WebApp.Controllers
                 var ticket = new Ticket
                 {
                     ApplicationUserId = _userManager.GetUserId(User),
-                    TotalPrice = originDestination.Price
+                    TotalPrice = originDestination.Price,
+                    SeatNumber = model.SelectedSeat
                 };
 
                 if (model.IsRoundTrip)
@@ -165,8 +171,7 @@ namespace WebApp.Controllers
                 var ticketDestination = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
-                    DestinationId = model.SelectedOriginDestinationId,
-                    SeatNumber = model.SelectedSeat
+                    DestinationId = model.SelectedOriginDestinationId
                 };
 
                 _context.TicketsDestinations.Add(ticketDestination);
@@ -178,8 +183,7 @@ namespace WebApp.Controllers
                     var returnTicketDestination = new TicketDestination
                     {
                         TicketId = ticket.TicketId,
-                        DestinationId = returnDestination.DestinationId,
-                        SeatNumber = model.SelectedReturnSeat.HasValue ? model.SelectedReturnSeat.Value : (int?)null
+                        DestinationId = returnDestination.DestinationId
                     };
 
                     _context.TicketsDestinations.Add(returnTicketDestination);
@@ -196,6 +200,7 @@ namespace WebApp.Controllers
 
             return View(model);
         }
+
 
         public IActionResult Confirmation()
         {
@@ -249,5 +254,6 @@ namespace WebApp.Controllers
 
             return new SelectList(returnDestinations, "Value", "Text");
         }
+
     }
 }
