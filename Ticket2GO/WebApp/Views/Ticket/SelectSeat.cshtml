@@ -42,14 +42,19 @@
             <label for="selectedSeat">Select Seat:</label>
             <select class="form-control" id="selectedSeat" asp-for="SelectedSeat">
                 <option value="">-- Select a seat --</option>
-                @for (int i = 1; i <= Model.MaxSeats; i++)
+                @foreach (var seat in Model.AvailableSeats)
                 {
-                    <option value="@i">@i</option>
+                    <option value="@seat">@seat</option>
                 }
             </select>
             <span asp-validation-for="SelectedSeat" class="text-danger"></span>
         </div>
-
+        <div class="form-group">
+            <label asp-for="ReturnDestinationId">Return destination</label>
+            <select asp-for="ReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
+                <option value="">-- Select a return destination --</option>
+            </select>
+        </div>
         <button class="btn btn-primary" type="submit">Confirm Booking</button>
     </form>
 </div>

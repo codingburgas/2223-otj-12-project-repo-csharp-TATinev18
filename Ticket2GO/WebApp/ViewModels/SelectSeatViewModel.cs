@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using WebApp.Models;
 
@@ -16,6 +17,9 @@ namespace WebApp.ViewModels
         public string BusName { get; set; }
         public string TransportCompany { get; set; }
         public int MaxSeats { get; set; }
+        public string ReturnDestinationId { get; set; }
+        public IEnumerable<SelectListItem> ReturnDestinations { get; set; }
+        public IEnumerable<int> AvailableSeats { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid seat number.")]

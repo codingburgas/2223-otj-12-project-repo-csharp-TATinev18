@@ -93,6 +93,10 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
+            var destinations = GetReturnDestinations(destination.FinalDestination, destination.Departure);
+            var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
+
+
             var model = new SelectSeatViewModel
             {
                 DestinationId = destination.DestinationId,
@@ -103,22 +107,43 @@ namespace WebApp.Controllers
                 Price = destination.Price,
                 BusName = destination.Bus.Name,
                 TransportCompany = destination.Bus.TransportCompany.Name,
-                MaxSeats = destination.Bus.SeatsNumber
+                MaxSeats = destination.Bus.SeatsNumber,
+                ReturnDestinations = destinations.Select(c => new SelectListItem
+                {
+                    Value = c.DestinationId.ToString(),
+                    Text = c.FinalDestination
+                }).ToList(),
+                AvailableSeats = availableSeats
             };
 
             return View(model);
         }
 
+        private async Task<IEnumerable<int>> GetAvailableSeatsAsync(Guid busId, int seatsNumber)
+        {
+            var destinations = await _context.Destinations
+                .Where(d => d.BusId == busId)
+                .Select(d => d.DestinationId)
+                .ToListAsync();
+
+            var takenSeats = await _context.TicketsDestinations
+                .Where(td => destinations.Contains(td.DestinationId))
+                .Join(_context.Tickets, td => td.TicketId, t => t.TicketId, (td, t) => t.SeatNumber)
+                .Distinct()
+                .ToListAsync();
+
+            var availableSeats = Enumerable.Range(1, seatsNumber).Where(seat => !takenSeats.Contains(seat)).ToList();
+
+            return availableSeats;
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
-            ModelState.Remove("StartingDestination");
-            ModelState.Remove("FinalDestination");
-            ModelState.Remove("BusName");
-            ModelState.Remove("TransportCompany");
-
-            if (ModelState.IsValid)
+            if (model.SelectedSeat != 0)
             {
+
                 var ticket = new Ticket
                 {
                     ApplicationUserId = _userManager.GetUserId(User),
@@ -137,6 +162,18 @@ namespace WebApp.Controllers
 
                 _context.TicketsDestinations.Add(ticketDestination);
                 await _context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(model.ReturnDestinationId))
+                {
+                    var ticketDestination2 = new TicketDestination
+                    {
+                        TicketId = ticket.TicketId,
+                        DestinationId = new Guid(model.ReturnDestinationId)
+                    };
+
+                    _context.TicketsDestinations.Add(ticketDestination2);
+                    await _context.SaveChangesAsync();
+                }
 
                 return RedirectToAction("Confirmation");
             }
@@ -223,6 +260,15 @@ namespace WebApp.Controllers
 
             return returnDestination;
         }
+
+        private IEnumerable<Destination> GetReturnDestinations(string finalDestination, DateTime originTrainDeparture)
+        {
+            var returnDestination = _context.Destinations
+                .Where(d => d.StartingDestination == finalDestination && d.Departure <= originTrainDeparture.AddDays(14));
+
+            return returnDestination;
+        }
+
         private int GetMaxSeats(Guid destinationId)
         {
             if (destinationId == Guid.Empty) return 0;
