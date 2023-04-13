@@ -144,6 +144,41 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                // Re-populate the model data here as needed before returning the view.
+                var destination = await _context.Destinations
+                    .Include(d => d.Bus)
+                    .ThenInclude(b => b.TransportCompany)
+                    .FirstOrDefaultAsync(d => d.DestinationId == model.DestinationId);
+
+                if (destination == null)
+                {
+                    return NotFound();
+                }
+
+                var destinations = GetReturnDestinations(destination.FinalDestination, destination.Departure);
+                var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
+
+                model.StartingDestination = destination.StartingDestination;
+                model.FinalDestination = destination.FinalDestination;
+                model.Departure = destination.Departure;
+                model.TimeOfArrival = destination.TimeOfArrival;
+                model.Price = destination.Price;
+                model.BusName = destination.Bus.Name;
+                model.TransportCompany = destination.Bus.TransportCompany.Name;
+                model.MaxSeats = destination.Bus.SeatsNumber;
+                model.ReturnDestinations = destinations.Select(c => new SelectListItem
+                {
+                    Value = c.DestinationId.ToString(),
+                    Text = c.FinalDestination
+                }).ToList();
+                model.AvailableSeats = availableSeats;
+
+                return View("SelectSeat", model);
+            }
+
+            // Continue with the booking process...
             if (model.SelectedSeat != 0)
             {
                 decimal totalPrice = model.Price;
@@ -265,7 +300,7 @@ namespace WebApp.Controllers
 
             if (originDestination == null)
                 return null;
-
+ 
             var returnDestination = _context.Destinations
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
                             d.FinalDestination == originDestination.StartingDestination &&
