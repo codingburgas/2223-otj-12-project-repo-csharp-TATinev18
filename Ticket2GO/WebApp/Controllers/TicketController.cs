@@ -65,6 +65,8 @@ namespace WebApp.Controllers
                 destinations = destinations.Where(d => d.Departure.Date == date.Value.Date);
             }
 
+            destinations = destinations.Where(d => d.Departure >= DateTime.Now);
+
             var filteredDestinations = await destinations.ToListAsync();
 
             var model = new BookTicketViewModel
@@ -79,6 +81,7 @@ namespace WebApp.Controllers
 
             return View(model);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> SelectSeat(Guid id)

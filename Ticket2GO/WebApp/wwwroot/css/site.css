@@ -16,3 +16,32 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.info-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-section .form-group {
+    margin-bottom: 15px;
+}
+
+.info-section label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.info-section span {
+    font-weight: 500;
+}
+
+.info-section i {
+    margin-right: 5px;
+}
+
+.booking {
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+}

@@ -27,15 +27,24 @@
                 <label asp-for="Input.Email"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
-            <div class="form-floating">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" oninput="passwordStrength()" class="form-control" autocomplete="new-password" aria-required="true" id="Input_Password" />
                 <label asp-for="Input.Password"></label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
+            <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()"> Show Password
+            <div class="progress mt-2" style="height: 5px;">
+                <div id="passwordStrengthBar" class="progress-bar" role="progressbar"></div>
+            </div>
+            <br>
             <div class="form-floating">
                 <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
                 <label asp-for="Input.ConfirmPassword"></label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                <div>
+                    <input type="checkbox" id="showConfirmPassword" onclick="toggleConfirmPasswordVisibility()"> Show Confirm Password
+                </div>
+                <div id="passwordStrength" class="strength"></div>
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
@@ -71,6 +80,7 @@
         </section>
     </div>
 </div>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

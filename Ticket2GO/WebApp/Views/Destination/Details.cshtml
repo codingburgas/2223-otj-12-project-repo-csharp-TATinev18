@@ -1,4 +1,5 @@
-﻿@model WebApp.Models.Destination
+﻿@using System.Globalization
+@model WebApp.Models.Destination
 
 @{
     ViewData["Title"] = "Destination Details";
@@ -50,7 +51,7 @@
                     @Html.DisplayNameFor(model => model.Price)
                 </dt>
                 <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.Price)
+                    @Model.Price.ToString("C", CultureInfo.CurrentCulture)
                 </dd>
             </dl>
         </div>

@@ -21,7 +21,7 @@ namespace WebApp.ViewModels
         public Guid? SelectedReturnDestinationId { get; set; }
         public IEnumerable<SelectListItem> ReturnDestinations { get; set; }
         public IEnumerable<int> AvailableSeats { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please select a seat.")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid seat number.")]
         public int SelectedSeat { get; set; }
     }

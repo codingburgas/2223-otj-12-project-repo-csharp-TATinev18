@@ -1,4 +1,5 @@
-﻿@model WebApp.Models.Destination
+﻿@using System.Globalization
+@model WebApp.Models.Destination
 
 @{
     ViewData["Title"] = "Delete";
@@ -53,7 +54,7 @@
                     Price
                 </dt>
                 <dd class="col-sm-8">
-                    @Model.Price
+                    @Model.Price.ToString("C", CultureInfo.CurrentCulture)
                 </dd>
             </dl>
         </div>

@@ -1,60 +1,66 @@
-﻿@model WebApp.ViewModels.SelectSeatViewModel
+﻿@using System.Globalization
+@model WebApp.ViewModels.SelectSeatViewModel
 @{
     ViewData["Title"] = "Select Seat";
 }
 
-<div class="container">
+<div class="container booking">
     <h1 class="my-4">Select Seat</h1>
 
     <form asp-controller="Ticket" asp-action="ConfirmBooking" method="post">
         <input type="hidden" asp-for="DestinationId" />
         <input type="hidden" asp-for="Price" />
 
-        <div class="form-group">
-            <label>Starting Destination:</label>
-            <span>@Model.StartingDestination</span>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i>Starting Destination:</label>
+                        <span>@Model.StartingDestination</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i>Final Destination:</label>
+                        <span>@Model.FinalDestination</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i>Departure:</label>
+                        <span>@Model.Departure</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i>Arrival:</label>
+                        <span>@Model.TimeOfArrival</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-dollar-sign"></i>Price:</label>
+                        <span>@Model.Price.ToString("C", CultureInfo.CurrentCulture)</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-bus"></i>Transport Company:</label>
+                        <span>@Model.TransportCompany</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="selectedSeat">Select Seat:</label>
+                    <select class="form-control" id="selectedSeat" asp-for="SelectedSeat">
+                        <option value="">-- Select a seat --</option>
+                        @foreach (var seat in Model.AvailableSeats)
+                        {
+                            <option value="@seat">@seat</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedSeat" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ReturnDestinationId">Return destination</label>
+                    <select asp-for="ReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
+                        <option value="">-- Select a return destination --</option>
+                    </select>
+                </div>
+                <br>
+                <button class="btn btn-primary" type="submit">Confirm Booking</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Final Destination:</label>
-            <span>@Model.FinalDestination</span>
-        </div>
-        <div class="form-group">
-            <label>Departure:</label>
-            <span>@Model.Departure</span>
-        </div>
-        <div class="form-group">
-            <label>Arrival:</label>
-            <span>@Model.TimeOfArrival</span>
-        </div>
-        <div class="form-group">
-            <label>Price:</label>
-            <span>@Model.Price</span>
-        </div>
-        <div class="form-group">
-            <label>Transport Company:</label>
-            <span>@Model.TransportCompany</span>
-        </div>
-        <div class="form-group">
-            <label>Bus Name:</label>
-            <span>@Model.BusName</span>
-        </div>
-        <div class="form-group">
-            <label for="selectedSeat">Select Seat:</label>
-            <select class="form-control" id="selectedSeat" asp-for="SelectedSeat">
-                <option value="">-- Select a seat --</option>
-                @foreach (var seat in Model.AvailableSeats)
-                {
-                    <option value="@seat">@seat</option>
-                }
-            </select>
-            <span asp-validation-for="SelectedSeat" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="ReturnDestinationId">Return destination</label>
-            <select asp-for="ReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
-                <option value="">-- Select a return destination --</option>
-            </select>
-        </div>
-        <button class="btn btn-primary" type="submit">Confirm Booking</button>
     </form>
 </div>

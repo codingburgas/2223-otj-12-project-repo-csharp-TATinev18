@@ -1,4 +1,5 @@
-﻿@model WebApp.ViewModels.BookTicketViewModel
+﻿@using System.Globalization
+@model WebApp.ViewModels.BookTicketViewModel
 @{
     ViewData["Title"] = "Book Ticket";
 }
@@ -53,7 +54,7 @@
                     <td>@destination.FinalDestination</td>
                     <td>@destination.Departure</td>
                     <td>@destination.TimeOfArrival</td>
-                    <td>@destination.Price</td>
+                    <td>@destination.Price.ToString("C", CultureInfo.CurrentCulture)</td>
                     <td>@destination.Bus.TransportCompany.Name</td>
                     <td>
                         <a asp-controller="Ticket" asp-action="SelectSeat" asp-route-id="@destination.DestinationId" class="btn btn-primary">Book</a>
