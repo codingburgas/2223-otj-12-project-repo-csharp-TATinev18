@@ -143,11 +143,22 @@ namespace WebApp.Controllers
         {
             if (model.SelectedSeat != 0)
             {
+                decimal totalPrice = model.Price;
+
+                if (!string.IsNullOrEmpty(model.ReturnDestinationId))
+                {
+                    var returnDestination = await _context.Destinations
+                        .FirstOrDefaultAsync(d => d.DestinationId == Guid.Parse(model.ReturnDestinationId));
+                    if (returnDestination != null)
+                    {
+                        totalPrice += returnDestination.Price;
+                    }
+                }
 
                 var ticket = new Ticket
                 {
                     ApplicationUserId = _userManager.GetUserId(User),
-                    TotalPrice = model.Price,
+                    TotalPrice = totalPrice,
                     SeatNumber = model.SelectedSeat
                 };
 

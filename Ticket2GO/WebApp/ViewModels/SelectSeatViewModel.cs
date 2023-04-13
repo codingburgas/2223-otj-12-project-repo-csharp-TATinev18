@@ -18,9 +18,9 @@ namespace WebApp.ViewModels
         public string TransportCompany { get; set; }
         public int MaxSeats { get; set; }
         public string ReturnDestinationId { get; set; }
+        public Guid? SelectedReturnDestinationId { get; set; }
         public IEnumerable<SelectListItem> ReturnDestinations { get; set; }
         public IEnumerable<int> AvailableSeats { get; set; }
-
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid seat number.")]
         public int SelectedSeat { get; set; }
