@@ -220,7 +220,7 @@ namespace WebApp.Controllers
             }
 
             // Continue with the rest of the code
-            decimal totalPrice = model.Price;
+            decimal totalPrice = model.Price + _context.Destinations.Where(d => d.DestinationId == model.SelectedReturnDestinationId).First().Price;
             if (!string.IsNullOrEmpty(model.ReturnDestinationId))
             {
                 var returnDestination = await _context.Destinations
@@ -281,7 +281,7 @@ namespace WebApp.Controllers
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
                             d.FinalDestination == originDestination.StartingDestination &&
                             d.Departure <= originDestination.Departure.AddDays(14) &&
-                            d.Departure > originDestination.TimeOfArrival); // Add this line
+                            d.Departure > originDestination.TimeOfArrival);
 
             return selector(returnDestinations);
         }
