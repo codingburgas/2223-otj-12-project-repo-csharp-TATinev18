@@ -143,7 +143,6 @@ namespace WebApp.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> SelectSeat(Guid id)
         {
@@ -165,7 +164,8 @@ namespace WebApp.Controllers
                 {
                     Value = c.DestinationId.ToString(),
                     Text = $"{c.StartingDestination} - {c.FinalDestination} ({c.Bus.TransportCompany.Name}) - {c.Departure.ToString("dd/MM/yyyy HH:mm")} - {c.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {c.Price.ToString("C2")}"
-                });
+                })
+                .ToList();
 
             var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
 
@@ -180,7 +180,7 @@ namespace WebApp.Controllers
                 BusName = destination.Bus.Name,
                 TransportCompany = destination.Bus.TransportCompany.Name,
                 MaxSeats = destination.Bus.SeatsNumber,
-                ReturnDestinations = returnDestinations,
+                ReturnDestinations = returnDestinations ?? new List<SelectListItem>(),
                 AvailableSeats = availableSeats
             };
 
@@ -213,47 +213,9 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
-            if (model.SelectedSeat != 0)
+            if (!ModelState.IsValid || model.SelectedSeat == 0)
             {
-                decimal totalPrice = model.Price;
-                if (!string.IsNullOrEmpty(model.ReturnDestinationId))
-                {
-                    var returnDestination = await _context.Destinations
-                        .FirstOrDefaultAsync(d => d.DestinationId == Guid.Parse(model.ReturnDestinationId));
-                    if (returnDestination != null)
-                    {
-                        totalPrice += returnDestination.Price;
-                    }
-                }
-                var ticket = new Ticket
-                {
-                    ApplicationUserId = _userManager.GetUserId(User),
-                    TotalPrice = totalPrice,
-                    SeatNumber = model.SelectedSeat
-                };
-                _context.Tickets.Add(ticket);
-                await _context.SaveChangesAsync();
-                var ticketDestination = new TicketDestination
-                {
-                    TicketId = ticket.TicketId,
-                    DestinationId = model.DestinationId
-                };
-                _context.TicketsDestinations.Add(ticketDestination);
-                await _context.SaveChangesAsync();
-                if (!string.IsNullOrEmpty(model.ReturnDestinationId))
-                {
-                    var ticketDestination2 = new TicketDestination
-                    {
-                        TicketId = ticket.TicketId,
-                        DestinationId = new Guid(model.ReturnDestinationId)
-                    };
-                    _context.TicketsDestinations.Add(ticketDestination2);
-                    await _context.SaveChangesAsync();
-                }
-                return RedirectToAction("Confirmation");
-            }
-            else
-            {
+                // Re-populate the model and return the view with validation errors
                 var destination = await _context.Destinations
                     .Include(d => d.Bus)
                     .ThenInclude(b => b.TransportCompany)
@@ -271,9 +233,48 @@ namespace WebApp.Controllers
                     Text = $"{c.FinalDestination} ({c.Bus.TransportCompany.Name})"
                 }).ToList();
 
+                ModelState.AddModelError("SelectedSeat", "Please select a seat.");
+
                 return View("SelectSeat", model);
             }
 
+            // Continue with the rest of the code
+            decimal totalPrice = model.Price;
+            if (!string.IsNullOrEmpty(model.ReturnDestinationId))
+            {
+                var returnDestination = await _context.Destinations
+                    .FirstOrDefaultAsync(d => d.DestinationId == Guid.Parse(model.ReturnDestinationId));
+                if (returnDestination != null)
+                {
+                    totalPrice += returnDestination.Price;
+                }
+            }
+            var ticket = new Ticket
+            {
+                ApplicationUserId = _userManager.GetUserId(User),
+                TotalPrice = totalPrice,
+                SeatNumber = model.SelectedSeat
+            };
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+            var ticketDestination = new TicketDestination
+            {
+                TicketId = ticket.TicketId,
+                DestinationId = model.DestinationId
+            };
+            _context.TicketsDestinations.Add(ticketDestination);
+            await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(model.ReturnDestinationId))
+            {
+                var ticketDestination2 = new TicketDestination
+                {
+                    TicketId = ticket.TicketId,
+                    DestinationId = new Guid(model.ReturnDestinationId)
+                };
+                _context.TicketsDestinations.Add(ticketDestination2);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Confirmation");
         }
 
         private int GetMaxSeats(Guid destinationId)
