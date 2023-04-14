@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using WebApp.Models;
@@ -11,7 +12,7 @@ namespace WebApp.ViewModels
         {
             Destinations = new List<Destination>();
             Companies = new SelectList(new List<TransportCompany>(), "Id", "Name");
-            var defaultOption = new SelectListItem { Value = "", Text = "-- Select a company --", Selected = true };
+            var defaultOption = new SelectListItem { Value = "", Text = "-- Изберете компания --", Selected = true };
             var companiesList = new List<SelectListItem> { defaultOption };
             Companies = new SelectList(companiesList.Concat(Companies), "Value", "Text");
         }
@@ -23,6 +24,7 @@ namespace WebApp.ViewModels
         public string SelectedFinalDestination { get; set; }
         public IEnumerable<SelectListItem> AvailableDestinations { get; set; }
 
+        [BindProperty]
         public int SelectedSeat { get; set; }
         public int MaxSeats { get; set; }
 

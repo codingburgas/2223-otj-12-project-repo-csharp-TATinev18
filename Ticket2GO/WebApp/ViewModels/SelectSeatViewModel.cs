@@ -22,7 +22,6 @@ namespace WebApp.ViewModels
         public IEnumerable<SelectListItem> ReturnDestinations { get; set; }
         public IEnumerable<int> AvailableSeats { get; set; }
         [Required(ErrorMessage = "Please select a seat.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid seat number.")]
-        public int SelectedSeat { get; set; }
+        public int? SelectedSeat { get; set; }
     }
 }

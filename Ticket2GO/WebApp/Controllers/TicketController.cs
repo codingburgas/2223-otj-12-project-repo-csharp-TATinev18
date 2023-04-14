@@ -156,16 +156,11 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var destinations = GetReturnDestinations(id, ds => ds.ToList());
-            var returnDestinations = destinations
-                .GroupBy(d => new { d.StartingDestination, d.FinalDestination, d.Departure, d.TimeOfArrival, d.Price })
-                .Select(g => g.First())
-                .Select(c => new SelectListItem
-                {
-                    Value = c.DestinationId.ToString(),
-                    Text = $"{c.StartingDestination} - {c.FinalDestination} ({c.Bus.TransportCompany.Name}) - {c.Departure.ToString("dd/MM/yyyy HH:mm")} - {c.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {c.Price.ToString("C2")}"
-                })
-                .ToList();
+            var returnDestinations = GetReturnDestinations(id, ds => ds.Select(d => new SelectListItem
+            {
+                Value = d.DestinationId.ToString(),
+                Text = $"{d.StartingDestination} - {d.FinalDestination} ({d.Bus.TransportCompany.Name}) - {d.Departure.ToString("dd/MM/yyyy HH:mm")} - {d.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {d.Price.ToString("C2")}"
+            }).ToList());
 
             var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
 
@@ -180,9 +175,14 @@ namespace WebApp.Controllers
                 BusName = destination.Bus.Name,
                 TransportCompany = destination.Bus.TransportCompany.Name,
                 MaxSeats = destination.Bus.SeatsNumber,
-                ReturnDestinations = returnDestinations ?? new List<SelectListItem>(),
+                ReturnDestinations = returnDestinations,
                 AvailableSeats = availableSeats
             };
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                ModelState.AddModelError("SelectedSeat", TempData["ErrorMessage"].ToString());
+            }
 
             return View(model);
         }
@@ -202,7 +202,7 @@ namespace WebApp.Controllers
 
             var availableSeats = Enumerable.Range(1, seatsNumber).Where(seat => !takenSeats.Contains(seat)).ToList();
 
-            return availableSeats;
+            return availableSeats ?? new List<int>();
         }
 
         public IActionResult Confirmation()
@@ -213,29 +213,10 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
-            if (!ModelState.IsValid || model.SelectedSeat == 0)
+            if (!ModelState.IsValid && ModelState[nameof(model.SelectedSeat)].Errors.Any())
             {
-                // Re-populate the model and return the view with validation errors
-                var destination = await _context.Destinations
-                    .Include(d => d.Bus)
-                    .ThenInclude(b => b.TransportCompany)
-                    .FirstOrDefaultAsync(d => d.DestinationId == model.DestinationId);
-
-                if (destination == null)
-                {
-                    return NotFound();
-                }
-
-                var destinations = GetReturnDestinations(model.DestinationId, ds => ds.ToList());
-                model.ReturnDestinations = destinations.Select(c => new SelectListItem
-                {
-                    Value = c.DestinationId.ToString(),
-                    Text = $"{c.FinalDestination} ({c.Bus.TransportCompany.Name})"
-                }).ToList();
-
-                ModelState.AddModelError("SelectedSeat", "Please select a seat.");
-
-                return View("SelectSeat", model);
+                TempData["ErrorMessage"] = "Please select a seat.";
+                return RedirectToAction("SelectSeat", new { id = model.DestinationId });
             }
 
             // Continue with the rest of the code
@@ -253,7 +234,7 @@ namespace WebApp.Controllers
             {
                 ApplicationUserId = _userManager.GetUserId(User),
                 TotalPrice = totalPrice,
-                SeatNumber = model.SelectedSeat
+                SeatNumber = model.SelectedSeat.Value
             };
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
@@ -299,10 +280,10 @@ namespace WebApp.Controllers
             var returnDestinations = _context.Destinations.Include(d => d.Bus).ThenInclude(b => b.TransportCompany)
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
                             d.FinalDestination == originDestination.StartingDestination &&
-                            d.Departure <= originDestination.Departure.AddDays(14));
+                            d.Departure <= originDestination.Departure.AddDays(14) &&
+                            d.Departure > originDestination.TimeOfArrival); // Add this line
 
             return selector(returnDestinations);
         }
-
     }
 }
