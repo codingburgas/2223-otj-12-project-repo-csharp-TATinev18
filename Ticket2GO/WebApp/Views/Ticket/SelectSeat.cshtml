@@ -44,7 +44,7 @@
                 <div class="form-group">
                     <label for="selectedSeat">Select Seat:</label>
                     <select class="form-control" id="selectedSeat" asp-for="SelectedSeat">
-                        <option value="">-- Select a seat --</option>
+                        <option value="0">-- Select a seat --</option>
                         @foreach (var seat in Model.AvailableSeats)
                         {
                             <option value="@seat">@seat</option>

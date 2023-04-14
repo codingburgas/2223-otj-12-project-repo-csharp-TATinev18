@@ -82,6 +82,67 @@ namespace WebApp.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> BookTicket(BookTicketViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var originDestination = _context.Destinations
+                    .FirstOrDefault(d => d.DestinationId == model.SelectedOriginDestinationId);
+
+                var ticket = new Ticket
+                {
+                    ApplicationUserId = _userManager.GetUserId(User),
+                    TotalPrice = originDestination.Price,
+                    SeatNumber = model.SelectedSeat
+                };
+
+                if (model.IsRoundTrip)
+                {
+                    var returnDestination = GetReturnDestinations(model.SelectedOriginDestinationId, ds => ds.FirstOrDefault());
+                    ticket.TotalPrice += returnDestination.Price;
+                }
+
+                _context.Tickets.Add(ticket);
+                await _context.SaveChangesAsync();
+
+                var ticketDestination = new TicketDestination
+                {
+                    TicketId = ticket.TicketId,
+                    DestinationId = model.SelectedOriginDestinationId
+                };
+
+                _context.TicketsDestinations.Add(ticketDestination);
+
+                if (model.IsRoundTrip)
+                {
+                    var returnDestination = GetReturnDestinations(model.SelectedOriginDestinationId, ds => ds.FirstOrDefault());
+
+                    var returnTicketDestination = new TicketDestination
+                    {
+                        TicketId = ticket.TicketId,
+                        DestinationId = returnDestination.DestinationId
+                    };
+
+                    _context.TicketsDestinations.Add(returnTicketDestination);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Confirmation");
+            }
+
+            model.AvailableDestinations = GetAvailableDestination();
+            model.MaxSeats = GetMaxSeats(model.SelectedOriginDestinationId);
+            model.ReturnDestinations = GetReturnDestinations(model.SelectedOriginDestinationId, ds => ds.Select(d => new SelectListItem
+            {
+                Value = d.DestinationId.ToString(),
+                Text = $"{d.StartingDestination} - {d.FinalDestination} ({d.Bus.TransportCompany.Name}) - {d.Departure.ToString("dd/MM/yyyy HH:mm")} - {d.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {d.Price.ToString("C2")}"
+            }).ToList());
+
+            return View(model);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> SelectSeat(Guid id)
@@ -96,9 +157,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var destinations = GetReturnDestinations(destination.FinalDestination, destination.Departure);
-            var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
-
+            var destinations = GetReturnDestinations(id, ds => ds.ToList());
             var returnDestinations = destinations
                 .GroupBy(d => new { d.StartingDestination, d.FinalDestination, d.Departure, d.TimeOfArrival, d.Price })
                 .Select(g => g.First())
@@ -107,6 +166,8 @@ namespace WebApp.Controllers
                     Value = c.DestinationId.ToString(),
                     Text = $"{c.StartingDestination} - {c.FinalDestination} ({c.Bus.TransportCompany.Name}) - {c.Departure.ToString("dd/MM/yyyy HH:mm")} - {c.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {c.Price.ToString("C2")}"
                 });
+
+            var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
 
             var model = new SelectSeatViewModel
             {
@@ -144,6 +205,10 @@ namespace WebApp.Controllers
             return availableSeats;
         }
 
+        public IActionResult Confirmation()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
@@ -187,95 +252,28 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction("Confirmation");
             }
-            return View("SelectSeat", model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> BookTicket(BookTicketViewModel model)
-        {
-            if (ModelState.IsValid)
+            else
             {
-                var originDestination = _context.Destinations
-                    .FirstOrDefault(d => d.DestinationId == model.SelectedOriginDestinationId);
+                var destination = await _context.Destinations
+                    .Include(d => d.Bus)
+                    .ThenInclude(b => b.TransportCompany)
+                    .FirstOrDefaultAsync(d => d.DestinationId == model.DestinationId);
 
-                var ticket = new Ticket
+                if (destination == null)
                 {
-                    ApplicationUserId = _userManager.GetUserId(User),
-                    TotalPrice = originDestination.Price,
-                    SeatNumber = model.SelectedSeat
-                };
-
-                if (model.IsRoundTrip)
-                {
-                    var returnDestination = GetReturnDestination(model.SelectedOriginDestinationId);
-                    ticket.TotalPrice += returnDestination.Price;
+                    return NotFound();
                 }
 
-                _context.Tickets.Add(ticket);
-                await _context.SaveChangesAsync();
-
-                var ticketDestination = new TicketDestination
+                var destinations = GetReturnDestinations(model.DestinationId, ds => ds.ToList());
+                model.ReturnDestinations = destinations.Select(c => new SelectListItem
                 {
-                    TicketId = ticket.TicketId,
-                    DestinationId = model.SelectedOriginDestinationId
-                };
+                    Value = c.DestinationId.ToString(),
+                    Text = $"{c.FinalDestination} ({c.Bus.TransportCompany.Name})"
+                }).ToList();
 
-                _context.TicketsDestinations.Add(ticketDestination);
-
-                if (model.IsRoundTrip)
-                {
-                    var returnDestination = GetReturnDestination(model.SelectedOriginDestinationId);
-
-                    var returnTicketDestination = new TicketDestination
-                    {
-                        TicketId = ticket.TicketId,
-                        DestinationId = returnDestination.DestinationId
-                    };
-
-                    _context.TicketsDestinations.Add(returnTicketDestination);
-                }
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Confirmation");
+                return View("SelectSeat", model);
             }
 
-            model.AvailableDestinations = GetAvailableDestination();
-            model.MaxSeats = GetMaxSeats(model.SelectedOriginDestinationId);
-            model.ReturnDestinations = GetReturnDestinations(model.SelectedOriginDestinationId);
-
-            return View(model);
-        }
-
-
-        public IActionResult Confirmation()
-        {
-            return View();
-        }
-
-        private Destination GetReturnDestination(Guid originDestinationId)
-        {
-            var originDestination = _context.Destinations
-                .FirstOrDefault(d => d.DestinationId == originDestinationId);
-
-            if (originDestination == null)
-                return null;
- 
-            var returnDestination = _context.Destinations
-                .Where(d => d.StartingDestination == originDestination.FinalDestination &&
-                            d.FinalDestination == originDestination.StartingDestination &&
-                            d.Departure <= originDestination.Departure.AddDays(14))
-                .FirstOrDefault();
-
-            return returnDestination;
-        }
-
-        private IEnumerable<Destination> GetReturnDestinations(string finalDestination, DateTime originTrainDeparture)
-        {
-            var returnDestination = _context.Destinations
-                .Where(d => d.StartingDestination == finalDestination && d.Departure <= originTrainDeparture.AddDays(14));
-
-            return returnDestination;
         }
 
         private int GetMaxSeats(Guid destinationId)
@@ -289,25 +287,20 @@ namespace WebApp.Controllers
             return bus?.SeatsNumber ?? 0;
         }
 
-        private SelectList GetReturnDestinations(Guid originDestinationId)
+        private T GetReturnDestinations<T>(Guid originDestinationId, Func<IEnumerable<Destination>, T> selector)
         {
             var originDestination = _context.Destinations
                 .FirstOrDefault(d => d.DestinationId == originDestinationId);
 
             if (originDestination == null)
-                return new SelectList(Enumerable.Empty<SelectListItem>());
+                return default(T);
 
             var returnDestinations = _context.Destinations.Include(d => d.Bus).ThenInclude(b => b.TransportCompany)
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
                             d.FinalDestination == originDestination.StartingDestination &&
-                            d.Departure <= originDestination.Departure.AddDays(14))
-                .Select(d => new SelectListItem
-                {
-                    Value = d.DestinationId.ToString(),
-                    Text = $"{d.StartingDestination} - {d.FinalDestination} ({d.Bus.TransportCompany.Name})"
-                });
+                            d.Departure <= originDestination.Departure.AddDays(14));
 
-            return new SelectList(returnDestinations, "Value", "Text");
+            return selector(returnDestinations);
         }
 
     }
