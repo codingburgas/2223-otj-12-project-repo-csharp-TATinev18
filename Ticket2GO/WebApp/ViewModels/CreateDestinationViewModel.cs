@@ -16,6 +16,7 @@ namespace WebApp.ViewModels
         public string FinalDestination { get; set; }
 
         [Required]
+        [TimeSpan(ErrorMessage = "Duration must be between 00:00:01 and 24:00:00.")]
         [Display(Name = "Duration")]
         public TimeSpan Duration { get; set; }
 
@@ -42,7 +43,7 @@ namespace WebApp.ViewModels
 
         [Required]
         [DataType(DataType.Currency)]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
+        [Range(0.01, 999999.99, ErrorMessage = "Price must be between 0.01 and 999,999.99")]
         public decimal TotalPrice { get; set; }
 
         public bool DeleteAllRepetitions { get; set; }
