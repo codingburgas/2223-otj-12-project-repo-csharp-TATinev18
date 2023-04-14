@@ -134,7 +134,8 @@ namespace WebApp.Controllers
                         Departure = viewModel.Departure,
                         TimeOfArrival = viewModel.TimeOfArrival,
                         BusId = viewModel.SelectedBusId.Value,
-                        RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek
+                        RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
+                        Price = viewModel.TotalPrice
                     });
                 }
 

@@ -38,7 +38,6 @@
                     <td>@item.Bus.TransportCompany.Name</td>
                     <td>@item.Price.ToString("C", CultureInfo.CurrentCulture)</td>
                     <td>
-                        <a asp-action="Edit" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-secondary">Edit</a>
                         <a asp-action="Details" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-info">Details</a>
                         <a asp-action="Delete" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-danger">Delete</a>
                     </td>
