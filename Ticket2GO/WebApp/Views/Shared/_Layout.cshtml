@@ -17,50 +17,44 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebApp</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Ticket2GO</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Book Ticket</a>
-                        </li>
                         @{
                             var isAdmin = User.IsInRole("Admin");
                             var isCompanyManager = User.IsInRole("Company Manager");
                             if (SignInManager.IsSignedIn(User))
                             {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Резервирай билет</a>
+                                </li>
                                 if (isAdmin)
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Transport Companies</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Транспортни компании</a>
                                     </li>
                                 }
                                 else if (isCompanyManager)
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="ManagerIndex">Transport Companies</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="ManagerIndex">Транспортни компании</a>
                                     </li>
                                 }
                             }
                             @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Admin Panel</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Админски панел</a>
                                 </li>
                             }
                             @if (User.IsInRole("Company Manager"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Destination" asp-action="Index">Destinations</a>
+                                    <a class="nav-link" asp-area="" asp-controller="Destination" asp-action="Index">Маршрути</a>
                                 </li>
                             }
                         }
@@ -78,7 +72,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2023 - WebApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2023 - Ticket2GO - <a asp-area="" asp-controller="Home" asp-action="Privacy">Общи условия</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

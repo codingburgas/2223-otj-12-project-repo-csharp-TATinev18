@@ -71,20 +71,20 @@ namespace WebApp.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [Required]
-            [StringLength(255, ErrorMessage = "Първото име трябва да има дължина от 255 символа.")]
+            [Required(ErrorMessage = "Въведете първо име")]
+            [StringLength(255, ErrorMessage = "Първото име трябва да има дължина не повече от 255 символа.")]
             [Display(Name = "Първо име")]
             public string FirstName { get; set; }
 
-            [Required]
-            [StringLength(255, ErrorMessage = "Фамилията трябва да има дължина от 255 символа.")]
+            [Required(ErrorMessage = "Въведете фамилия")]
+            [StringLength(255, ErrorMessage = "Фамилията трябва да има дължина не повече от 255 символа.")]
             [Display(Name = "Фамилия")]
             public string LastName { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage ="Въведете имейл")]
             [EmailAddress]
             [Display(Name = "Имейл")]
             public string Email { get; set; }
@@ -93,7 +93,7 @@ namespace WebApp.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "Въведете парола")]
             [StringLength(100, ErrorMessage = "Паролата трябва да бъде дълга между 6 и 100 символа.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Парола")]
@@ -105,7 +105,7 @@ namespace WebApp.Areas.Identity.Pages.Account
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Потвърди паролата")]
-            [Compare("Password", ErrorMessage = "Паролата и паролата за потвърждение не съвпадат.")]
+            [Compare("Password", ErrorMessage = "Паролите не съвпадат.")]
             public string ConfirmPassword { get; set; }
         }
 
