@@ -53,9 +53,13 @@
                     <span asp-validation-for="SelectedSeat" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="ReturnDestinationId">Return destination</label>
-                    <select asp-for="ReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
+                    <label asp-for="SelectedReturnDestinationId">Return destination:</label>
+                    <select asp-for="SelectedReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
                         <option value="">-- Select a return destination --</option>
+                        @foreach (var item in Model.ReturnDestinations)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
                     </select>
                 </div>
                 <br>

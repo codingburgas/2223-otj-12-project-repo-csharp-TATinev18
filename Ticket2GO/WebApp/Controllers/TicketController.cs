@@ -99,6 +99,14 @@ namespace WebApp.Controllers
             var destinations = GetReturnDestinations(destination.FinalDestination, destination.Departure);
             var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
 
+            var returnDestinations = destinations
+                .GroupBy(d => new { d.StartingDestination, d.FinalDestination, d.Departure, d.TimeOfArrival, d.Price })
+                .Select(g => g.First())
+                .Select(c => new SelectListItem
+                {
+                    Value = c.DestinationId.ToString(),
+                    Text = $"{c.StartingDestination} - {c.FinalDestination} ({c.Bus.TransportCompany.Name}) - {c.Departure.ToString("dd/MM/yyyy HH:mm")} - {c.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {c.Price.ToString("C2")}"
+                });
 
             var model = new SelectSeatViewModel
             {
@@ -111,11 +119,7 @@ namespace WebApp.Controllers
                 BusName = destination.Bus.Name,
                 TransportCompany = destination.Bus.TransportCompany.Name,
                 MaxSeats = destination.Bus.SeatsNumber,
-                ReturnDestinations = destinations.Select(c => new SelectListItem
-                {
-                    Value = c.DestinationId.ToString(),
-                    Text = c.FinalDestination
-                }).ToList(),
+                ReturnDestinations = returnDestinations,
                 AvailableSeats = availableSeats
             };
 
@@ -144,45 +148,9 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                // Re-populate the model data here as needed before returning the view.
-                var destination = await _context.Destinations
-                    .Include(d => d.Bus)
-                    .ThenInclude(b => b.TransportCompany)
-                    .FirstOrDefaultAsync(d => d.DestinationId == model.DestinationId);
-
-                if (destination == null)
-                {
-                    return NotFound();
-                }
-
-                var destinations = GetReturnDestinations(destination.FinalDestination, destination.Departure);
-                var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
-
-                model.StartingDestination = destination.StartingDestination;
-                model.FinalDestination = destination.FinalDestination;
-                model.Departure = destination.Departure;
-                model.TimeOfArrival = destination.TimeOfArrival;
-                model.Price = destination.Price;
-                model.BusName = destination.Bus.Name;
-                model.TransportCompany = destination.Bus.TransportCompany.Name;
-                model.MaxSeats = destination.Bus.SeatsNumber;
-                model.ReturnDestinations = destinations.Select(c => new SelectListItem
-                {
-                    Value = c.DestinationId.ToString(),
-                    Text = c.FinalDestination
-                }).ToList();
-                model.AvailableSeats = availableSeats;
-
-                return View("SelectSeat", model);
-            }
-
-            // Continue with the booking process...
             if (model.SelectedSeat != 0)
             {
                 decimal totalPrice = model.Price;
-
                 if (!string.IsNullOrEmpty(model.ReturnDestinationId))
                 {
                     var returnDestination = await _context.Destinations
@@ -192,26 +160,21 @@ namespace WebApp.Controllers
                         totalPrice += returnDestination.Price;
                     }
                 }
-
                 var ticket = new Ticket
                 {
                     ApplicationUserId = _userManager.GetUserId(User),
                     TotalPrice = totalPrice,
                     SeatNumber = model.SelectedSeat
                 };
-
                 _context.Tickets.Add(ticket);
                 await _context.SaveChangesAsync();
-
                 var ticketDestination = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
                     DestinationId = model.DestinationId
                 };
-
                 _context.TicketsDestinations.Add(ticketDestination);
                 await _context.SaveChangesAsync();
-
                 if (!string.IsNullOrEmpty(model.ReturnDestinationId))
                 {
                     var ticketDestination2 = new TicketDestination
@@ -219,14 +182,11 @@ namespace WebApp.Controllers
                         TicketId = ticket.TicketId,
                         DestinationId = new Guid(model.ReturnDestinationId)
                     };
-
                     _context.TicketsDestinations.Add(ticketDestination2);
                     await _context.SaveChangesAsync();
                 }
-
                 return RedirectToAction("Confirmation");
             }
-
             return View("SelectSeat", model);
         }
 
