@@ -87,6 +87,11 @@ namespace WebApp.Controllers
                 await _context.SaveChangesAsync();
 
                 var user = await _userManager.GetUserAsync(HttpContext.User);
+                if (user == null || transportCompany == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var transportCompanyAspNetUser = new TransportCompanyAspNetUser
                 {
                     TransportCompanyId = transportCompany.TransportCompanyId,
@@ -224,16 +229,20 @@ namespace WebApp.Controllers
                 try
                 {
                     var transportCompany = await _context.TransportCompanies.FindAsync(id);
+
+                    if (transportCompany == null)
+                    {
+                        return NotFound();
+                    }
+
                     transportCompany.Name = viewModel.Name;
                     transportCompany.DateEdited = DateTime.Now;
 
                     if (viewModel.Logo != null)
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await viewModel.Logo.CopyToAsync(memoryStream);
-                            transportCompany.Logo = memoryStream.ToArray();
-                        }
+                        using var memoryStream = new MemoryStream();
+                        await viewModel.Logo.CopyToAsync(memoryStream);
+                        transportCompany.Logo = memoryStream.ToArray();
                     }
 
                     _context.Update(transportCompany);
@@ -263,11 +272,6 @@ namespace WebApp.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var transportCompany = await _context.TransportCompanies
                 .FirstOrDefaultAsync(m => m.TransportCompanyId == id);
             if (transportCompany == null)

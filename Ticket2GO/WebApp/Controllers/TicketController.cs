@@ -276,7 +276,7 @@ namespace WebApp.Controllers
                 .FirstOrDefault(d => d.DestinationId == originDestinationId);
 
             if (originDestination == null)
-                return default(T);
+                return default!;
 
             var returnDestinations = _context.Destinations.Include(d => d.Bus).ThenInclude(b => b.TransportCompany)
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
@@ -284,7 +284,7 @@ namespace WebApp.Controllers
                             d.Departure <= originDestination.Departure.AddDays(14) &&
                             d.Departure > originDestination.TimeOfArrival);
 
-            return selector(returnDestinations);
+            return selector(returnDestinations)!;
         }
         public async Task<IActionResult> MyTicket()
         {
