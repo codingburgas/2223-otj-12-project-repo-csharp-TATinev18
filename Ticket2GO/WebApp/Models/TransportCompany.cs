@@ -18,6 +18,10 @@ namespace WebApp.Models
         [Required]
         public byte[] Logo { get; set; }
 
+        public DateTime DateCreated { get; set; }
+
+        public DateTime DateEdited { get; set; }
+
         public ICollection<Bus> Buses { get; set; }
 
     }

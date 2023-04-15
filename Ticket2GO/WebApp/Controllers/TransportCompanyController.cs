@@ -63,7 +63,7 @@ namespace WebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateTransportCompanyViewModel viewModel)
+        public async Task<IActionResult> Create(TransportCompanyViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
@@ -78,7 +78,9 @@ namespace WebApp.Controllers
                 var transportCompany = new TransportCompany
                 {
                     Name = viewModel.Name,
-                    Logo = logoBytes
+                    Logo = logoBytes,
+                    DateCreated = DateTime.Now,
+                    DateEdited = DateTime.Now
                 };
 
                 _context.Add(transportCompany);
@@ -179,6 +181,92 @@ namespace WebApp.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var transportCompany = await _context.TransportCompanies.FindAsync(id);
+            if (transportCompany == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TransportCompanyViewModel
+            {
+                TransportCompanyId = transportCompany.TransportCompanyId,
+                Name = transportCompany.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, TransportCompanyViewModel viewModel)
+        {
+            if (id != viewModel.TransportCompanyId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var transportCompany = await _context.TransportCompanies.FindAsync(id);
+                    transportCompany.Name = viewModel.Name;
+                    transportCompany.DateEdited = DateTime.Now;
+
+                    if (viewModel.Logo != null)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await viewModel.Logo.CopyToAsync(memoryStream);
+                            transportCompany.Logo = memoryStream.ToArray();
+                        }
+                    }
+
+                    _context.Update(transportCompany);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TransportCompanyExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(viewModel);
+        }
+
+        private bool TransportCompanyExists(Guid id)
+        {
+            return _context.TransportCompanies.Any(e => e.TransportCompanyId == id);
+        }
+
+        public async Task<IActionResult> Details(Guid id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var transportCompany = await _context.TransportCompanies
+                .FirstOrDefaultAsync(m => m.TransportCompanyId == id);
+            if (transportCompany == null)
+            {
+                return NotFound();
+            }
+
+            return View(transportCompany);
         }
     }
 }
