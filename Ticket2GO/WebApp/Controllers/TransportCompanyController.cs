@@ -173,6 +173,15 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
+            var destinations = await _context.Destinations
+                .Where(d => d.Bus.TransportCompanyId == id)
+                .ToListAsync();
+
+            if (destinations.Any())
+            {
+                return BadRequest("Транспортната компания не може да бъде изтрита, тъй като има свързани дестинации. Първо изтрийте дестинациите, за да извършите успешно операцията.");
+            }
+
             var transportCompaniesAspNetUsers = _context.TransportCompaniesAspNetUsers
                 .Where(tc => tc.TransportCompanyId == id);
             _context.TransportCompaniesAspNetUsers.RemoveRange(transportCompaniesAspNetUsers);
