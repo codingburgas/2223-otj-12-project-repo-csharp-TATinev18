@@ -160,5 +160,25 @@ namespace WebApp.Controllers
             ViewData["TransportCompanyId"] = transportCompanyId;
             return View(viewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var transportCompany = await _context.TransportCompanies.FindAsync(id);
+            if (transportCompany == null)
+            {
+                return NotFound();
+            }
+
+            var transportCompaniesAspNetUsers = _context.TransportCompaniesAspNetUsers
+                .Where(tc => tc.TransportCompanyId == id);
+            _context.TransportCompaniesAspNetUsers.RemoveRange(transportCompaniesAspNetUsers);
+
+            _context.TransportCompanies.Remove(transportCompany);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
