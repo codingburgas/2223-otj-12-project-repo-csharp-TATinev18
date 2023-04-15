@@ -219,7 +219,6 @@ namespace WebApp.Controllers
                 return RedirectToAction("SelectSeat", new { id = model.DestinationId });
             }
 
-            // Continue with the rest of the code
             decimal totalPrice = model.Price + _context.Destinations.Where(d => d.DestinationId == model.SelectedReturnDestinationId).First().Price;
             if (!string.IsNullOrEmpty(model.ReturnDestinationId))
             {
@@ -245,16 +244,18 @@ namespace WebApp.Controllers
             };
             _context.TicketsDestinations.Add(ticketDestination);
             await _context.SaveChangesAsync();
-            if (!string.IsNullOrEmpty(model.ReturnDestinationId))
+
+            if (model.SelectedReturnDestinationId.HasValue)
             {
                 var ticketDestination2 = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
-                    DestinationId = new Guid(model.ReturnDestinationId)
+                    DestinationId = model.SelectedReturnDestinationId.Value
                 };
                 _context.TicketsDestinations.Add(ticketDestination2);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction("Confirmation");
         }
 
@@ -284,6 +285,23 @@ namespace WebApp.Controllers
                             d.Departure > originDestination.TimeOfArrival);
 
             return selector(returnDestinations);
+        }
+        public async Task<IActionResult> MyTicket()
+        {
+            var userId = _userManager.GetUserId(User);
+            var tickets = await _context.Tickets
+                .Where(t => t.ApplicationUserId == userId)
+                .Include(t => t.TicketDestinations)
+                .ThenInclude(td => td.Destination)
+                .ThenInclude(d => d.Bus)
+                .ToListAsync();
+
+            if (tickets == null || tickets.Count == 0)
+            {
+                ViewData["Message"] = "You currently have no booked tickets.";
+            }
+
+            return View(tickets);
         }
     }
 }

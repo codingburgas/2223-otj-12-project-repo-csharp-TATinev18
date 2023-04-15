@@ -30,6 +30,9 @@
                             if (SignInManager.IsSignedIn(User))
                             {
                                 <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="MyTicket">Билети</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Резервирай билет</a>
                                 </li>
                                 if (isAdmin)
