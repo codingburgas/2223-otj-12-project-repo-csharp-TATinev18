@@ -19,9 +19,9 @@ else
                 <th>Final Destination</th>
                 <th>Departure</th>
                 <th>Time of Arrival</th>
-                <th>Bus</th>
                 <th>Seat Number</th>
                 <th>Price</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -35,9 +35,14 @@ else
                         <td>@ticketDestination.Destination.FinalDestination</td>
                         <td>@ticketDestination.Destination.Departure.ToString("g")</td>
                         <td>@ticketDestination.Destination.TimeOfArrival.ToString("g")</td>
-                        <td>@ticketDestination.Destination.Bus.Name</td>
                         <td>@ticket.SeatNumber</td>
                         <td>@ticketDestination.Destination.Price.ToString("C")</td>
+                        <td>
+                            <form asp-action="CancelTicket" method="post" class="d-inline">
+                                <input type="hidden" asp-for="@ticket.TicketId" name="ticketId" />
+                                <button type="submit" class="btn btn-danger">Cancel</button>
+                            </form>
+                        </td>
                     </tr>
                 }
             }

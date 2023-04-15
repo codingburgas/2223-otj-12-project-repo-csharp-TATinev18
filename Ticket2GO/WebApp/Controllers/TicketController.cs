@@ -303,5 +303,23 @@ namespace WebApp.Controllers
 
             return View(tickets);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelTicket(Guid ticketId)
+        {
+            var ticket = await _context.Tickets
+                .Include(t => t.TicketDestinations)
+                .FirstOrDefaultAsync(t => t.TicketId == ticketId && t.ApplicationUserId == _userManager.GetUserId(User));
+
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            _context.Tickets.Remove(ticket);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("MyTicket");
+        }
     }
 }
