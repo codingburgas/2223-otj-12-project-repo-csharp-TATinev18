@@ -12,5 +12,7 @@ namespace WebApp.Services.Interfaces
         public Task<IdentityResult> EditUser(ManageUserRolesViewModel model, ApplicationUser user);
         public Task<IdentityResult> ResetPassword(ManageUserRolesViewModel model, ApplicationUser user);
         public Task UpdateUserRole(ManageUserRolesViewModel model, ApplicationUser user);
+        public Task UpdateAdminTable(ApplicationUser user);
+        public Task<List<ApplicationUser>> GetAdminUsers();
     }
 }

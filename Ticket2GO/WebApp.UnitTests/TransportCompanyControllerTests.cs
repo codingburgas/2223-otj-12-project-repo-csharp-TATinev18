@@ -32,16 +32,13 @@ namespace WebApp.Tests
         [SetUp]
         public void Setup()
         {
-            // Create a new instance of the ApplicationDbContext
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            // Create a new instance of the HttpContextAccessor
             _httpContextAccessor = new HttpContextAccessor();
 
-            // Register services
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDb"));
@@ -52,7 +49,6 @@ namespace WebApp.Tests
 
             _serviceProvider = services.BuildServiceProvider();
 
-            // Get required services for UserManager, RoleManager, and SignInManager
             _userManager = services.BuildServiceProvider().GetRequiredService<UserManager<ApplicationUser>>();
             _roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole>>();
             _identityOptions = services.BuildServiceProvider().GetRequiredService<IOptions<IdentityOptions>>();
@@ -62,7 +58,6 @@ namespace WebApp.Tests
 
             _userConfirmation = new DefaultUserConfirmation<ApplicationUser>();
 
-            // Create SignInManager
             _signInManager = new SignInManager<ApplicationUser>(
                 _userManager,
                 _httpContextAccessor,
@@ -87,7 +82,7 @@ namespace WebApp.Tests
             _httpContextAccessor.HttpContext = httpContext;
 
             httpContext.RequestServices = _serviceProvider;
-            // Arrange
+
             var controller = new TransportCompanyController(_context, _userManager)
             {
                 ControllerContext = new ControllerContext()
@@ -96,7 +91,6 @@ namespace WebApp.Tests
                 }
             };
 
-            // Create and sign in a user
             var user = new ApplicationUser
             {
                 UserName = "testuser",
@@ -107,7 +101,6 @@ namespace WebApp.Tests
             await _userManager.CreateAsync(user, "Test@123");
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            // Update the controller context with the signed-in user
             controller.ControllerContext.HttpContext.User = _httpContextAccessor.HttpContext.User;
 
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("This is a test file."));
@@ -117,17 +110,14 @@ namespace WebApp.Tests
                 Logo = new FormFile(stream, 0, stream.Length, "testLogo.jpg", "image/jpeg")
             };
 
-            // Act
             var result = await controller.Create(viewModel);
 
-            // Assert
             Assert.That(result, Is.TypeOf<RedirectToActionResult>());
         }
 
         [Test]
         public async Task CreateTransportCompany_InvalidInput_ReturnsViewResult()
         {
-            // Arrange
             var controller = new TransportCompanyController(_context, _userManager)
             {
                 ControllerContext = new ControllerContext()
@@ -137,20 +127,16 @@ namespace WebApp.Tests
             };
             var viewModel = new TransportCompanyViewModel();
 
-            // Add model state error to simulate invalid input
             controller.ModelState.AddModelError("Name", "The Name field is required.");
 
-            // Act
             var result = await controller.Create(viewModel);
 
-            // Assert
             Assert.That(result, Is.TypeOf<ViewResult>());
         }
 
         [TearDown]
         public void TearDown()
         {
-            // Clean up any resources that were used in the test
             _context.Database.EnsureDeleted();
         }
     }

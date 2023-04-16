@@ -1,8 +1,8 @@
 ﻿@model WebApp.ViewModels.CreateDestinationViewModel
 @{
-    ViewData["Title"] = "Create Destination";
+    ViewData["Title"] = "Създаване на маршрут";
 }
-<h1>Create Destination</h1>
+<h1>Създаване на маршрут</h1>
 
 <form asp-action="Create" asp-controller="Destination" method="post">
     <div class="form-group">
@@ -33,7 +33,7 @@
     <div class="form-group">
         <label asp-for="SelectedBusId" class="control-label"></label>
         <select asp-for="SelectedBusId" class="form-control" asp-items="Model.Buses">
-            <option value="">-- Select Bus --</option>
+            <option value="">-- Избери автобус --</option>
         </select>
         <span asp-validation-for="SelectedBusId" class="text-danger"></span>
     </div>
@@ -57,6 +57,6 @@
         <input asp-for="TotalPrice" class="form-control" />
         <span asp-validation-for="TotalPrice" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-    <a asp-action="Index" asp-controller="Destination" class="btn btn-secondary">Back to List</a>
+    <button type="submit" class="btn btn-primary">Създай</button>
+    <a asp-action="Index" asp-controller="Destination" class="btn btn-secondary">Списък с маршрути</a>
 </form>

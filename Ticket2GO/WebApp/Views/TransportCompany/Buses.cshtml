@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<WebApp.Models.Bus>
 @{
-    ViewData["Title"] = "Buses";
+    ViewData["Title"] = "Автобуси";
     ViewData["TransportCompanyId"] = ViewBag.TransportCompanyId;
 }
 
-<h1>Buses</h1>
+<h1>Автобуси</h1>
 
 <p>
-    <a asp-action="CreateBus" asp-route-transportCompanyId="@ViewData["TransportCompanyId"]" class="btn btn-primary">Create New</a>
+    <a asp-action="CreateBus" asp-route-transportCompanyId="@ViewData["TransportCompanyId"]" class="btn btn-primary">Добави автобус</a>
 </p>
 
 <table class="table">

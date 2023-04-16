@@ -70,8 +70,15 @@ namespace WebApp.Controllers
             }
 
             await _adminService.UpdateUserRole(model, user);
+            await _adminService.UpdateAdminTable(user);
 
             return RedirectToAction(nameof(ManageUsers));
+        }
+
+        public async Task<IActionResult> DisplayAdmins()
+        {
+            var admins = await _adminService.GetAdminUsers();
+            return View(admins);
         }
     }
 

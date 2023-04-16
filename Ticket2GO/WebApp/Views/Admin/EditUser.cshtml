@@ -1,27 +1,30 @@
 ﻿@model WebApp.ViewModels.ManageUserRolesViewModel
 
-<h2>Edit User</h2>
+@{
+    ViewData["Title"] = "Промени Потребител";
+}
+<h2>Промени потребител</h2>
 
 <form asp-action="EditUser" method="post">
     <input type="hidden" asp-for="UserId" />
     <div class="form-group">
-        <label asp-for="Email"></label>
+        <label asp-for="Email">Електронна Поща</label>
         <input asp-for="Email" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="FirstName"></label>
+        <label asp-for="FirstName">Първо Име</label>
         <input asp-for="FirstName" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="LastName"></label>
+        <label asp-for="LastName">Фамилия</label>
         <input asp-for="LastName" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Password"></label>
+        <label asp-for="Password">Парола</label>
         <input asp-for="Password" class="form-control" />
     </div>
     <div class="form-group">
-        <label>Roles</label>
+        <label>Роли</label>
         @foreach (var role in Model.AvailableRoles)
         {
             <div class="form-check">
@@ -31,5 +34,5 @@
         }
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="submit" class="btn btn-primary">Запази</button>
 </form>

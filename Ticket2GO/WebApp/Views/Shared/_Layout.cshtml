@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebApp</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
@@ -30,28 +30,28 @@
                             if (SignInManager.IsSignedIn(User))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="MyTicket">Билети</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="MyTicket">Запазени Билети</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Резервирай билет</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="BookTicket">Резервирай Билет</a>
                                 </li>
                                 if (isAdmin)
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Транспортни компании</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="Index">Автобусни Компании</a>
                                     </li>
                                 }
                                 else if (isCompanyManager)
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="ManagerIndex">Транспортни компании</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="TransportCompany" asp-action="ManagerIndex">Автобусни Компании</a>
                                     </li>
                                 }
                             }
                             @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Админски панел</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Администраторски Панел</a>
                                 </li>
                             }
                             @if (User.IsInRole("Company Manager"))

@@ -73,7 +73,7 @@ namespace WebApp.Areas.Identity.Pages.Account
         {
             [Required(ErrorMessage = "Въведете първо име")]
             [StringLength(255, ErrorMessage = "Първото име трябва да има дължина не повече от 255 символа.")]
-            [Display(Name = "Първо име")]
+            [Display(Name = "Първо Име")]
             public string FirstName { get; set; }
 
             [Required(ErrorMessage = "Въведете фамилия")]
@@ -84,9 +84,9 @@ namespace WebApp.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required(ErrorMessage ="Въведете имейл")]
+            [Required(ErrorMessage ="Въведете електронната си поща")]
             [EmailAddress]
-            [Display(Name = "Имейл")]
+            [Display(Name = "Eлектронна Поща")]
             public string Email { get; set; }
 
             /// <summary>

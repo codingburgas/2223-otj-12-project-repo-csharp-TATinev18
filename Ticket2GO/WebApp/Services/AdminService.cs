@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
+using WebApp.Data;
+using WebApp.Models;
 using WebApp.Services.Interfaces;
 using WebApp.ViewModels;
 
@@ -10,10 +12,13 @@ namespace WebApp.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly ApplicationDbContext _dbContext;
+
+        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext dbContext)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _dbContext = dbContext;
         }
         public async Task<List<ManageUserRolesViewModel>> GetUsers()
         {
@@ -102,6 +107,32 @@ namespace WebApp.Services
 
             await _userManager.AddToRolesAsync(user, rolesToAdd);
             await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+
+            await UpdateAdminTable(user);
+        }
+
+        public async Task UpdateAdminTable(ApplicationUser user)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var adminEntry = await _dbContext.Admins.FirstOrDefaultAsync(a => a.ApplicationUserId == user.Id);
+
+            if (userRoles.Contains("Admin") && adminEntry == null)
+            {
+                var newAdmin = new Admin { ApplicationUserId = user.Id, ApplicationUser = user };
+                await _dbContext.Admins.AddAsync(newAdmin);
+            }
+            else if (!userRoles.Contains("Admin") && adminEntry != null)
+            {
+                _dbContext.Admins.Remove(adminEntry);
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<ApplicationUser>> GetAdminUsers()
+        {
+            var admins = await _dbContext.Admins.Include(a => a.ApplicationUser).ToListAsync();
+            return admins.Select(a => a.ApplicationUser).ToList();
         }
     }
 }

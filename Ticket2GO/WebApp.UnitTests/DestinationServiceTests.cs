@@ -23,7 +23,6 @@ namespace WebApp.Tests
         [SetUp]
         public void Setup()
         {
-            // Create and set up the ApplicationDbContext
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
@@ -35,7 +34,6 @@ namespace WebApp.Tests
         [Test]
         public async Task CreateDestination_ValidInput_CreatesDestination()
         {
-            // Arrange
             var viewModel = new CreateDestinationViewModel
             {
                 StartingDestination = "New York",
@@ -48,10 +46,8 @@ namespace WebApp.Tests
                 TotalPrice = 100
             };
 
-            // Act
             await _destinationService.CreateDestination(viewModel);
 
-            // Assert
             Assert.AreEqual(1, _context.Destinations.CountAsync().Result);
             var destination = await _context.Destinations.FirstAsync();
             Assert.AreEqual(viewModel.StartingDestination, destination.StartingDestination);
@@ -67,7 +63,6 @@ namespace WebApp.Tests
         [TearDown]
         public void TearDown()
         {
-            // Clean up any resources that were used in the test
             _context.Database.EnsureDeleted();
         }
     }
