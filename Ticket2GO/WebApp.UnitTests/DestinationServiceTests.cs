@@ -3,47 +3,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using WebApp.Areas.Identity.Data;
 using WebApp.Controllers;
 using WebApp.Data;
+using WebApp.Models;
+using WebApp.Services;
 using WebApp.ViewModels;
 
 namespace WebApp.Tests
 {
-    public class DestinationControllerTests
+    public class DestinationServiceTests
     {
         private ApplicationDbContext _context;
-        private UserManager<ApplicationUser> _userManager;
-        private IHttpContextAccessor _httpContextAccessor;
-        private ServiceProvider _serviceProvider;
+        private DestinationService _destinationService;
 
         [SetUp]
         public void Setup()
-        {
-            // Register services
-            IServiceCollection services = new ServiceCollection();
-            services.AddLogging();
-            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDb"));
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-            services.AddAuthentication();
-
-            _serviceProvider = services.BuildServiceProvider();
-
-            // Get required services for UserManager and HttpContextAccessor
-            _userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            _httpContextAccessor = new HttpContextAccessor();
-        }
-
-        [Test]
-        public async Task CreateDestination_ValidInput_CreatesDestination()
         {
             // Create and set up the ApplicationDbContext
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -51,19 +29,13 @@ namespace WebApp.Tests
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var httpContext = new DefaultHttpContext();
-            _httpContextAccessor.HttpContext = httpContext;
-            httpContext.RequestServices = _serviceProvider;
+            _destinationService = new DestinationService(_context);
+        }
 
+        [Test]
+        public async Task CreateDestination_ValidInput_CreatesDestination()
+        {
             // Arrange
-            var controller = new DestinationController(_context, _userManager)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = new DefaultHttpContext() { User = new ClaimsPrincipal(new ClaimsIdentity()) }
-                }
-            };
-
             var viewModel = new CreateDestinationViewModel
             {
                 StartingDestination = "New York",
@@ -77,12 +49,11 @@ namespace WebApp.Tests
             };
 
             // Act
-            var result = await controller.Create(viewModel);
+            await _destinationService.CreateDestination(viewModel);
 
             // Assert
-            Assert.IsInstanceOf<RedirectToActionResult>(result);
             Assert.AreEqual(1, _context.Destinations.CountAsync().Result);
-            var destination = _context.Destinations.FirstAsync().Result;
+            var destination = await _context.Destinations.FirstAsync();
             Assert.AreEqual(viewModel.StartingDestination, destination.StartingDestination);
             Assert.AreEqual(viewModel.FinalDestination, destination.FinalDestination);
             Assert.AreEqual(viewModel.Duration, destination.Duration);
