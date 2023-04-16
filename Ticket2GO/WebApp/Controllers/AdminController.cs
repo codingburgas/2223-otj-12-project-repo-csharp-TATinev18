@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApp.Areas.Identity.Data;
+using WebApp.Services.Interfaces;
 using WebApp.ViewModels;
 
 namespace WebApp.Controllers
@@ -15,91 +16,41 @@ namespace WebApp.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAdminService _adminService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(IAdminService adminService)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _adminService = adminService;
         }
 
         public async Task<IActionResult> ManageUsers()
         {
-            var users = await _userManager.Users.ToListAsync();
-            var userRoleViewModels = new List<ManageUserRolesViewModel>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                var availableRoles = _roleManager.Roles.Select(r => r.Name).ToList();
-
-                userRoleViewModels.Add(new ManageUserRolesViewModel
-                {
-                    UserId = user.Id,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Roles = roles,
-                    AvailableRoles = availableRoles
-                });
-            }
-
-            return View(userRoleViewModels);
+            return View(await _adminService.GetUsers());
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditUser(string UserId)
+        public async Task<IActionResult> EditUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(UserId);
+            var user = await _adminService.GetUser(userId);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var availableRoles = _roleManager.Roles.Select(r => r.Name).ToList();
-
-            var viewModel = new ManageUserRolesViewModel
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles,
-                AvailableRoles = availableRoles
-            };
-
-            return View(viewModel);
+            return View(await _adminService.GetUserInformation(user));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(ManageUserRolesViewModel model)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
+            var user = await _adminService.GetUser(model.UserId);
             if (user == null)
             {
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(model.Email))
-            {
-                user.Email = model.Email;
-                user.UserName = model.Email;
-            }
-
-            if (!string.IsNullOrEmpty(model.FirstName))
-            {
-                user.FirstName = model.FirstName;
-            }
-
-            if (!string.IsNullOrEmpty(model.LastName))
-            {
-                user.LastName = model.LastName;
-            }
-
-            var result = await _userManager.UpdateAsync(user);
+            IdentityResult result = await _adminService.EditUser(model, user);
 
             if (!result.Succeeded)
             {
@@ -109,8 +60,7 @@ namespace WebApp.Controllers
 
             if (!string.IsNullOrEmpty(model.Password))
             {
-                var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var resetResult = await _userManager.ResetPasswordAsync(user, passwordResetToken, model.Password);
+                IdentityResult resetResult = await _adminService.ResetPassword(model, user);
 
                 if (!resetResult.Succeeded)
                 {
@@ -119,16 +69,10 @@ namespace WebApp.Controllers
                 }
             }
 
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            var rolesToAdd = model.SelectedRoles.Except(currentRoles);
-            var rolesToRemove = currentRoles.Except(model.SelectedRoles);
-
-            await _userManager.AddToRolesAsync(user, rolesToAdd);
-            await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            await _adminService.UpdateUserRole(model, user);
 
             return RedirectToAction(nameof(ManageUsers));
         }
-
     }
 
 }

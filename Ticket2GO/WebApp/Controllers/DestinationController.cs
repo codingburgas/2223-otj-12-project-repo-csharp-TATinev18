@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
 using WebApp.Models;
+using WebApp.Services.Interfaces;
 using WebApp.ViewModels;
 
 namespace WebApp.Controllers
@@ -17,49 +18,24 @@ namespace WebApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDestinationService _destinationService;
 
-        public DestinationController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public DestinationController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDestinationService destinationService)
         {
             _context = context;
             _userManager = userManager;
+            _destinationService = destinationService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var destinations = await _context.Destinations
-                                             .Include(d => d.Bus)
-                                             .ThenInclude(b => b.TransportCompany)
-                                             .ToListAsync();
-            return View(destinations);
-        }
-
-        private async Task<string> GetManagerId()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            return user?.Id;
+            return View(await _destinationService.GetDestinations());
         }
 
         [HttpGet]
         public async Task<IActionResult> SelectCompany()
         {
-            string managerId = await GetManagerId();
-            var companies = _context.TransportCompaniesAspNetUsers
-                .Where(t => t.ApplicationUserId == managerId)
-                .Select(t => t.TransportCompany)
-                .ToList();
-
-            var companySelectListItems = companies.Select(c => new SelectListItem
-            {
-                Value = c.TransportCompanyId.ToString(),
-                Text = c.Name
-            }).ToList();
-
-            var viewModel = new CreateDestinationViewModel
-            {
-                Companies = companySelectListItems
-            };
-
-            return View(viewModel);
+            return View(_destinationService.GetCompanies(await _userManager.GetUserAsync(User)));
         }
 
         [HttpPost]
@@ -71,22 +47,8 @@ namespace WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid companyId)
         {
-            var buses = await _context.Buses.Where(b => b.TransportCompanyId == companyId).ToListAsync();
-
-            var busSelectListItems = buses.Select(b => new SelectListItem
-            {
-                Value = b.BusId.ToString(),
-                Text = b.Name
-            }).ToList();
-
-            var viewModel = new CreateDestinationViewModel
-            {
-                SelectedCompanyId = companyId,
-                Buses = busSelectListItems
-            };
             TempData["CompanyId"] = companyId.ToString();
-
-            return View(viewModel);
+            return View(await _destinationService.CreateDestination(companyId));
         }
 
         [HttpPost]
@@ -95,52 +57,7 @@ namespace WebApp.Controllers
         {
             if (ModelState.IsValid && viewModel.SelectedBusId.HasValue)
             {
-                var destinations = new List<Destination>();
-
-                if (viewModel.RepeatingDayOfWeek.HasValue && viewModel.NumberOfRepetitions.HasValue)
-                {
-                    var currentDate = viewModel.Departure;
-                    int repetitions = 0;
-
-                    while (repetitions < viewModel.NumberOfRepetitions.Value)
-                    {
-                        if (currentDate.DayOfWeek == viewModel.RepeatingDayOfWeek.Value)
-                        {
-                            destinations.Add(new Destination
-                            {
-                                StartingDestination = viewModel.StartingDestination,
-                                FinalDestination = viewModel.FinalDestination,
-                                Duration = viewModel.Duration,
-                                Departure = currentDate,
-                                TimeOfArrival = currentDate.Add(viewModel.Duration),
-                                BusId = viewModel.SelectedBusId.Value,
-                                RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
-                                Price = viewModel.TotalPrice
-                            });
-
-                            repetitions++;
-                        }
-
-                        currentDate = currentDate.AddDays(1);
-                    }
-                }
-                else
-                {
-                    destinations.Add(new Destination
-                    {
-                        StartingDestination = viewModel.StartingDestination,
-                        FinalDestination = viewModel.FinalDestination,
-                        Duration = viewModel.Duration,
-                        Departure = viewModel.Departure,
-                        TimeOfArrival = viewModel.TimeOfArrival,
-                        BusId = viewModel.SelectedBusId.Value,
-                        RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
-                        Price = viewModel.TotalPrice
-                    });
-                }
-
-                _context.AddRange(destinations);
-                await _context.SaveChangesAsync();
+                await _destinationService.CreateDestination(viewModel);
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -150,16 +67,11 @@ namespace WebApp.Controllers
 
             ViewData["BusId"] = new SelectList(_context.Buses, "BusId", "Name", viewModel.SelectedBusId);
             ViewData["CompanyId"] = new SelectList(_context.TransportCompanies, "CompanyId", "Name", viewModel.SelectedCompanyId);
-            viewModel.Buses = _context.Buses
-                .Where(b => b.TransportCompanyId == new Guid(TempData["CompanyId"].ToString()))
-                .Select(b => new SelectListItem
-                {
-                    Value = b.BusId.ToString(),
-                    Text = b.Name
-                }).ToList();
+            _destinationService.GetBuses(viewModel, TempData["CompanyId"].ToString());
 
             return View(viewModel);
         }
+
 
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -168,9 +80,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var destination = await _context.Destinations
-                .Include(d => d.Bus)
-                .FirstOrDefaultAsync(m => m.DestinationId == id);
+            Destination? destination = await _destinationService.GetDestination(id);
 
             if (destination == null)
             {
@@ -187,9 +97,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var destination = await _context.Destinations
-                .Include(d => d.Bus)
-                .FirstOrDefaultAsync(m => m.DestinationId == id);
+            Destination? destination = await _destinationService.GetDestination(id);
 
             if (destination == null)
             {
@@ -205,38 +113,15 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, bool deleteAllRepetitions = false)
         {
-            var destination = await _context.Destinations.FindAsync(id);
+            Destination? destination = await _destinationService.GetDestination(id);
 
             if (destination == null)
             {
                 return NotFound();
             }
 
-            _context.Destinations.Remove(destination);
-
-            if (deleteAllRepetitions)
-            {
-                var repeatedDestinations = _context.Destinations
-                    .Where(d => d.StartingDestination == destination.StartingDestination &&
-                                d.FinalDestination == destination.FinalDestination &&
-                                d.BusId == destination.BusId &&
-                                d.Duration == destination.Duration &&
-                                d.RepeatingDayOfWeek == destination.RepeatingDayOfWeek)
-                    .ToList();
-
-                foreach (var repeatedDestination in repeatedDestinations)
-                {
-                    int daysDifference = (repeatedDestination.Departure - destination.Departure).Days;
-                    if (daysDifference % 7 == 0)
-                    {
-                        _context.Destinations.Remove(repeatedDestination);
-                    }
-                }
-            }
-
-            await _context.SaveChangesAsync();
+            await _destinationService.DeleteDestination(deleteAllRepetitions, destination);
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

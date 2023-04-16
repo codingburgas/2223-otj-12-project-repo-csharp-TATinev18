@@ -8,7 +8,7 @@
         public string LastName { get; set; }
         public string Password { get; set; }
         public IList<string> Roles { get; set; }
-        public IList<string> AvailableRoles { get; set; }
-        public IList<string> SelectedRoles { get; set; }
+        public List<string> AvailableRoles { get; set; } = new List<string>();
+        public List<string> SelectedRoles { get; set; } = new List<string>();
     }
 }
