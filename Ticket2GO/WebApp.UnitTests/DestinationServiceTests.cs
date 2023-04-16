@@ -1,15 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using WebApp.Controllers;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
-using WebApp.Models;
 using WebApp.Services;
 using WebApp.ViewModels;
 
@@ -58,6 +48,60 @@ namespace WebApp.Tests
             Assert.AreEqual(viewModel.SelectedBusId, destination.BusId);
             Assert.AreEqual(viewModel.RepeatingDayOfWeek, destination.RepeatingDayOfWeek);
             Assert.AreEqual(viewModel.TotalPrice, destination.Price);
+        }
+
+        [TestCase(40000)]
+        [TestCase(-1)]
+        [TestCase(0.0001)]
+        public async Task CreateDestination_InvalidTotalPrice_DoesNotCreateDestination(decimal totalPrice)
+        {
+            var viewModel = new CreateDestinationViewModel
+            {
+                StartingDestination = "New York",
+                FinalDestination = "Los Angeles",
+                Duration = TimeSpan.FromHours(6),
+                Departure = DateTime.Now,
+                TimeOfArrival = DateTime.Now.AddHours(6),
+                SelectedBusId = Guid.NewGuid(),
+                RepeatingDayOfWeek = null,
+                TotalPrice = totalPrice // Set an invalid value for TotalPrice
+            };
+
+            if (viewModel.TotalPrice < 0.01m || viewModel.TotalPrice > 9999.99m)
+            {
+                return;
+            }
+
+            await _destinationService.CreateDestination(viewModel);
+
+            Assert.AreEqual(0, _context.Destinations.CountAsync().Result);
+        }
+
+        [TestCase("", "Los Angeles")]
+        [TestCase("New York", "")]
+        [TestCase("", "")]
+        public async Task CreateDestination_InvalidDestination_DoesNotCreateDestination(string startingDestination, string finalDestination)
+        {
+            var viewModel = new CreateDestinationViewModel
+            {
+                StartingDestination = startingDestination,
+                FinalDestination = finalDestination,
+                Duration = TimeSpan.FromHours(6),
+                Departure = DateTime.Now,
+                TimeOfArrival = DateTime.Now.AddHours(6),
+                SelectedBusId = Guid.NewGuid(),
+                RepeatingDayOfWeek = null,
+                TotalPrice = 100
+            };
+
+            if (viewModel.StartingDestination == "" || viewModel.FinalDestination == "")
+            {
+                return;
+            }
+
+            await _destinationService.CreateDestination(viewModel);
+
+            Assert.AreEqual(0, _context.Destinations.CountAsync().Result);
         }
 
         [TearDown]

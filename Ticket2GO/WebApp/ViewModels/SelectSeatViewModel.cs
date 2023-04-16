@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using WebApp.Models;
 
 namespace WebApp.ViewModels
 {
@@ -21,7 +18,7 @@ namespace WebApp.ViewModels
         public Guid? SelectedReturnDestinationId { get; set; }
         public IEnumerable<SelectListItem> ReturnDestinations { get; set; }
         public IEnumerable<int> AvailableSeats { get; set; }
-        [Required(ErrorMessage = "Please select a seat.")]
+        [Required(ErrorMessage = "Моля, изберете място.")]
         public int? SelectedSeat { get; set; }
     }
 }

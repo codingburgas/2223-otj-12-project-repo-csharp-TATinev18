@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
 using WebApp.Models;
 using WebApp.Services.Interfaces;
 using WebApp.ViewModels;
-using System.Security.Claims;
 
 namespace WebApp.Services
 {

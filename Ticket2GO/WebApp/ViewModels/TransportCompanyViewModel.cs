@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
-using WebApp.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebApp.ViewModels
 {
