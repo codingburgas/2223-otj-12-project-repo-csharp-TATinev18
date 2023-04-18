@@ -12,6 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default Connec
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<ITransportCompanyService, TransportCompanyService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(

@@ -8,19 +8,20 @@ using WebApp.Data;
 using WebApp.Models;
 using WebApp.ViewModels;
 using System.IO;
+using WebApp.Services.Interfaces;
 
 namespace WebApp.Controllers
 {
     [Authorize(Roles = "Admin,Company Manager")]
     public class TransportCompanyController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITransportCompanyService _transportCompanyService;
 
-        public TransportCompanyController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public TransportCompanyController(UserManager<ApplicationUser> userManager, ITransportCompanyService transportCompanyService)
         {
-            _context = context;
             _userManager = userManager;
+            _transportCompanyService = transportCompanyService;
         }
 
         public async Task<IActionResult> Index()
@@ -34,7 +35,7 @@ namespace WebApp.Controllers
             }
             else if (roles.Contains("Admin"))
             {
-                return View(await _context.TransportCompanies.ToListAsync());
+                return View(await _transportCompanyService.GetAllTransportCompanies());
             }
             else
             {
@@ -45,14 +46,9 @@ namespace WebApp.Controllers
         [Authorize(Roles = "Company Manager")]
         public async Task<IActionResult> ManagerIndex()
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            var transportCompanies = _context.TransportCompaniesAspNetUsers
-                                              .Include(tc => tc.TransportCompany)
-                                              .Where(tc => tc.ApplicationUserId == user.Id)
-                                              .Select(tc => tc.TransportCompany);
-
-            return View(await transportCompanies.ToListAsync());
+            return View(await _transportCompanyService.GetTransportCompanies(await _userManager.GetUserAsync(HttpContext.User)));
         }
+
 
 
         [HttpGet]
@@ -67,39 +63,7 @@ namespace WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[] logoBytes;
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    await viewModel.Logo.CopyToAsync(memoryStream);
-                    logoBytes = memoryStream.ToArray();
-                }
-
-                var transportCompany = new TransportCompany
-                {
-                    Name = viewModel.Name,
-                    Logo = logoBytes,
-                    DateCreated = DateTime.Now,
-                    DateEdited = DateTime.Now
-                };
-
-                _context.Add(transportCompany);
-                await _context.SaveChangesAsync();
-
-                var user = await _userManager.GetUserAsync(HttpContext.User);
-                if (user == null || transportCompany == null)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-
-                var transportCompanyAspNetUser = new TransportCompanyAspNetUser
-                {
-                    TransportCompanyId = transportCompany.TransportCompanyId,
-                    ApplicationUserId = user.Id
-                };
-
-                _context.TransportCompaniesAspNetUsers.Add(transportCompanyAspNetUser);
-                await _context.SaveChangesAsync();
+                await _transportCompanyService.CreateTransportCompany(viewModel, await _userManager.GetUserAsync(HttpContext.User));
 
                 return RedirectToAction(nameof(Index));
             }
@@ -107,14 +71,11 @@ namespace WebApp.Controllers
             return View(viewModel);
         }
 
-
         [Authorize(Roles = "Company Manager")]
         public async Task<IActionResult> MyTransportCompany()
         {
             var currentUser = await _userManager.GetUserAsync(User);
-
-            var userTransportCompany = _context.TransportCompaniesAspNetUsers
-                .FirstOrDefault(tc => tc.ApplicationUserId == currentUser.Id);
+            TransportCompanyAspNetUser? userTransportCompany = _transportCompanyService.GetCurrentUsersTransportCompany(currentUser);
 
             if (userTransportCompany == null)
             {
@@ -124,16 +85,18 @@ namespace WebApp.Controllers
             return View("Details", userTransportCompany.TransportCompany);
         }
 
+
+
         [HttpGet]
         public async Task<IActionResult> Buses(Guid transportCompanyId)
         {
-            var transportCompany = await _context.TransportCompanies.FindAsync(transportCompanyId);
+            TransportCompany? transportCompany = await _transportCompanyService.GetTransportCompany(transportCompanyId);
             if (transportCompany == null)
             {
                 return NotFound();
             }
 
-            var buses = _context.Buses.Where(b => b.TransportCompanyId == transportCompanyId);
+            IQueryable<Bus> buses = _transportCompanyService.GetCompanyBuses(transportCompanyId);
             ViewData["TransportCompanyName"] = transportCompany.Name;
             ViewData["TransportCompanyId"] = transportCompanyId;
 
@@ -153,14 +116,7 @@ namespace WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var bus = new Bus
-                {
-                    Name = viewModel.Name,
-                    SeatsNumber = viewModel.SeatsNumber,
-                    TransportCompanyId = transportCompanyId
-                };
-                _context.Add(bus);
-                await _context.SaveChangesAsync();
+                await _transportCompanyService.CreateBus(transportCompanyId, viewModel);
                 return RedirectToAction(nameof(Buses), new { transportCompanyId });
             }
 
@@ -172,27 +128,20 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var transportCompany = await _context.TransportCompanies.FindAsync(id);
+            TransportCompany? transportCompany = await _transportCompanyService.GetTransportCompany(id);
             if (transportCompany == null)
             {
                 return NotFound();
             }
 
-            var destinations = await _context.Destinations
-                .Where(d => d.Bus.TransportCompanyId == id)
-                .ToListAsync();
+            List<Destination> destinations = await _transportCompanyService.GetDestinations(id);
 
             if (destinations.Any())
             {
                 return BadRequest("Транспортната компания не може да бъде изтрита, тъй като има свързани дестинации. Първо изтрийте дестинациите, за да извършите успешно операцията.");
             }
 
-            var transportCompaniesAspNetUsers = _context.TransportCompaniesAspNetUsers
-                .Where(tc => tc.TransportCompanyId == id);
-            _context.TransportCompaniesAspNetUsers.RemoveRange(transportCompaniesAspNetUsers);
-
-            _context.TransportCompanies.Remove(transportCompany);
-            await _context.SaveChangesAsync();
+            await _transportCompanyService.DeleteTransportCompany(id, transportCompany);
 
             return RedirectToAction(nameof(Index));
         }
@@ -200,20 +149,18 @@ namespace WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var transportCompany = await _context.TransportCompanies.FindAsync(id);
+            TransportCompany? transportCompany = await _transportCompanyService.GetTransportCompany(id);
             if (transportCompany == null)
             {
                 return NotFound();
             }
 
-            var viewModel = new TransportCompanyViewModel
-            {
-                TransportCompanyId = transportCompany.TransportCompanyId,
-                Name = transportCompany.Name
-            };
+            TransportCompanyViewModel viewModel = _transportCompanyService.GenerateTransportCompnayViewModel(transportCompany);
 
             return View(viewModel);
         }
+
+        
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -228,29 +175,18 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    var transportCompany = await _context.TransportCompanies.FindAsync(id);
+                    TransportCompany? transportCompany = await _transportCompanyService.GetTransportCompany(id);
 
                     if (transportCompany == null)
                     {
                         return NotFound();
                     }
 
-                    transportCompany.Name = viewModel.Name;
-                    transportCompany.DateEdited = DateTime.Now;
-
-                    if (viewModel.Logo != null)
-                    {
-                        using var memoryStream = new MemoryStream();
-                        await viewModel.Logo.CopyToAsync(memoryStream);
-                        transportCompany.Logo = memoryStream.ToArray();
-                    }
-
-                    _context.Update(transportCompany);
-                    await _context.SaveChangesAsync();
+                    await _transportCompanyService.EditTransportCompany(viewModel, transportCompany);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TransportCompanyExists(id))
+                    if (!_transportCompanyService.TransportCompanyExists(id))
                     {
                         return NotFound();
                     }
@@ -265,15 +201,9 @@ namespace WebApp.Controllers
             return View(viewModel);
         }
 
-        private bool TransportCompanyExists(Guid id)
-        {
-            return _context.TransportCompanies.Any(e => e.TransportCompanyId == id);
-        }
-
         public async Task<IActionResult> Details(Guid id)
         {
-            var transportCompany = await _context.TransportCompanies
-                .FirstOrDefaultAsync(m => m.TransportCompanyId == id);
+            TransportCompany? transportCompany = await _transportCompanyService.GetTranspoerCompanyDeatils(id);
             if (transportCompany == null)
             {
                 return NotFound();
