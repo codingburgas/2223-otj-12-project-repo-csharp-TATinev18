@@ -1,0 +1,70 @@
+﻿@using System.Globalization
+@model WebApp.ViewModels.SelectSeatViewModel
+@{
+    ViewData["Title"] = "Избиране на място";
+}
+
+<div class="container booking">
+    <h1 class="my-4">Избиране на място</h1>
+
+    <form asp-controller="Ticket" asp-action="ConfirmBooking" method="post">
+        <input type="hidden" asp-for="DestinationId" />
+        <input type="hidden" asp-for="Price" />
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="info-section">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i>Начална дестинация:</label>
+                        <span>@Model.StartingDestination</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i>Крайна дестинация:</label>
+                        <span>@Model.FinalDestination</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i>Дата на пътуване:</label>
+                        <span>@Model.Departure</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i>Дата на пристигане:</label>
+                        <span>@Model.TimeOfArrival</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-dollar-sign"></i>Цена:</label>
+                        <span>@Model.Price.ToString("C", CultureInfo.CurrentCulture)</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-bus"></i>Автобусна компания:</label>
+                        <span>@Model.TransportCompany</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="selectedSeat">Място:</label>
+                    <select class="form-control" id="selectedSeat" asp-for="SelectedSeat">
+                        <option value="">-- Място --</option>
+                        @foreach (var seat in Model.AvailableSeats ?? Enumerable.Empty<int>())
+                        {
+                            <option value="@seat">@seat</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedSeat" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelectedReturnDestinationId">Опция за връщане:</label>
+                    <select asp-for="SelectedReturnDestinationId" asp-items="Model.ReturnDestinations" class="form-control">
+                        <option value="">-- Избрете опция за връщане --</option>
+                        @foreach (var item in Model.ReturnDestinations)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+                <br>
+                <button class="btn btn-primary" type="submit">Потвърди</button>
+            </div>
+        </div>
+    </form>
+</div>

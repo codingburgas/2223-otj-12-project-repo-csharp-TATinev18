@@ -1,0 +1,64 @@
+﻿@using System.Globalization
+@model WebApp.Models.Destination
+
+@{
+    ViewData["Title"] = "Destination Details";
+}
+
+<div class="container">
+    <h1 class="my-4">Destination Details</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.StartingDestination)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.StartingDestination)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.FinalDestination)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.FinalDestination)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Duration)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Duration)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Departure)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Departure)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.TimeOfArrival)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.TimeOfArrival)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Bus.Name)
+                </dt>
+                <dd class="col-sm-8">
+                    @Model.Bus.Name
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+                <dd class="col-sm-8">
+                    @Model.Price.ToString("C", CultureInfo.CurrentCulture)
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.DestinationId" class="btn btn-primary">Edit</a> |
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

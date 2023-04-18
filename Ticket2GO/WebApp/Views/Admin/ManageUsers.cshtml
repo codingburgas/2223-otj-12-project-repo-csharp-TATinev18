@@ -1,0 +1,35 @@
+﻿@model List<WebApp.ViewModels.ManageUserRolesViewModel>
+
+@{
+    ViewData["Title"] = "Управление на потребителите";
+}
+
+<h1>@ViewData["Title"]</h1>
+<a class="btn btn-primary" asp-action="DisplayAdmins" asp-controller="Admin">Администратори</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Електронна Поща</th>
+            <th>Първо Име</th>
+            <th>Фамилия</th>
+            <th>Роли</th>
+            <th>Опции</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>
+                    @string.Join(", ", user.Roles)
+                </td>
+                <td>
+                    <a asp-action="EditUser" asp-route-userId="@user.UserId" class="btn btn-primary">Редактирай</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

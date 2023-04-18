@@ -1,0 +1,62 @@
+﻿@model WebApp.ViewModels.CreateDestinationViewModel
+@{
+    ViewData["Title"] = "Създаване на маршрут";
+}
+<h1>Създаване на маршрут</h1>
+
+<form asp-action="Create" asp-controller="Destination" method="post">
+    <div class="form-group">
+        <label asp-for="StartingDestination"></label>
+        <input asp-for="StartingDestination" class="form-control" />
+        <span asp-validation-for="StartingDestination" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="FinalDestination"></label>
+        <input asp-for="FinalDestination" class="form-control" />
+        <span asp-validation-for="FinalDestination" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Duration"></label>
+        <input asp-for="Duration" class="form-control" />
+        <span asp-validation-for="Duration" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Departure"></label>
+        <input asp-for="Departure" type="datetime-local" class="form-control" />
+        <span asp-validation-for="Departure" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TimeOfArrival"></label>
+        <input asp-for="TimeOfArrival" type="datetime-local" class="form-control" />
+        <span asp-validation-for="TimeOfArrival" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SelectedBusId" class="control-label"></label>
+        <select asp-for="SelectedBusId" class="form-control" asp-items="Model.Buses">
+            <option value="">-- Избери автобус --</option>
+        </select>
+        <span asp-validation-for="SelectedBusId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="RepeatingDayOfWeek"></label>
+        <select asp-for="RepeatingDayOfWeek" class="form-control">
+            <option value="">-- Not repeating --</option>
+            @foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+            {
+                <option value="@day">@day</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="NumberOfRepetitions" class="control-label"></label>
+        <input asp-for="NumberOfRepetitions" class="form-control" />
+        <span asp-validation-for="NumberOfRepetitions" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TotalPrice" class="control-label"></label>
+        <input asp-for="TotalPrice" class="form-control" />
+        <span asp-validation-for="TotalPrice" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Създай</button>
+    <a asp-action="Index" asp-controller="Destination" class="btn btn-secondary">Списък с маршрути</a>
+</form>

@@ -1,0 +1,51 @@
+﻿@model IEnumerable<WebApp.Models.Ticket>
+@{
+    ViewData["Title"] = "Запазени билети";
+}
+
+<h1>Запазени билети</h1>
+
+@if (Model.Count() == 0)
+{
+    <p>@ViewData["Message"]</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Начална дестинация</th>
+                <th>Крайна дестинация</th>
+                <th>Дата на пътуване</th>
+                <th>Дата на пристигане</th>
+                <th>Място</th>
+                <th>Цена</th>
+                <th>Опции</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model)
+            {
+                foreach (var ticketDestination in ticket.TicketDestinations)
+                {
+                    <tr>
+                        <td>@ticketDestination.Destination.StartingDestination</td>
+                        <td>@ticketDestination.Destination.FinalDestination</td>
+                        <td>@ticketDestination.Destination.Departure.ToString("g")</td>
+                        <td>@ticketDestination.Destination.TimeOfArrival.ToString("g")</td>
+                        <td>@ticket.SeatNumber</td>
+                        <td>@ticketDestination.Destination.Price.ToString("C")</td>
+                        <td>
+                            <form asp-action="CancelTicket" method="post" class="d-inline">
+                                <input type="hidden" asp-for="@ticket.TicketId" name="ticketId" />
+                                <button type="submit" class="btn btn-danger">Откажи</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Начална страница</a>
