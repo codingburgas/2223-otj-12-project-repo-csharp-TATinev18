@@ -1,4 +1,4 @@
-using System.Globalization;
+Ôªøusing System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
@@ -33,12 +33,12 @@ CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
 cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
-cultureInfo.NumberFormat.CurrencySymbol = "Î‚.";
+cultureInfo.NumberFormat.CurrencySymbol = "–ª–≤.";
 
 decimal amount = 1000.50m;
 string formattedAmount = string.Format("{0} {1:N2}", cultureInfo.NumberFormat.CurrencySymbol, amount);
 
-Console.WriteLine(formattedAmount);
+//Console.WriteLine(formattedAmount);
 
 
 var app = builder.Build();
