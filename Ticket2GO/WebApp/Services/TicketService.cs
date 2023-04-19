@@ -150,29 +150,28 @@ namespace WebApp.Services
 
         public async Task ConfirmTicket(SelectSeatViewModel model, string userId)
         {
-            decimal totalPrice = model.Price + _context.Destinations.Where(d => d.DestinationId == model.SelectedReturnDestinationId).First().Price;
-            if (!string.IsNullOrEmpty(model.ReturnDestinationId))
-            {
-                var returnDestination = await _context.Destinations
-                    .FirstOrDefaultAsync(d => d.DestinationId == Guid.Parse(model.ReturnDestinationId));
-                if (returnDestination != null)
-                {
-                    totalPrice += returnDestination.Price;
-                }
-            }
+            var returnDestination = _context.Destinations
+                .Where(d => d.DestinationId == model.SelectedReturnDestinationId)
+                .FirstOrDefault();
+
+            decimal totalPrice = model.Price + (returnDestination?.Price ?? 0);
+
             var ticket = new Ticket
             {
-                ApplicationUserId = userId ,
+                ApplicationUserId = userId,
                 TotalPrice = totalPrice,
                 SeatNumber = model.SelectedSeat.Value
             };
+
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
+
             var ticketDestination = new TicketDestination
             {
                 TicketId = ticket.TicketId,
                 DestinationId = model.DestinationId
             };
+
             _context.TicketsDestinations.Add(ticketDestination);
             await _context.SaveChangesAsync();
 
