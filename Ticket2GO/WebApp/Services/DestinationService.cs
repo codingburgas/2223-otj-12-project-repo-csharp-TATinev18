@@ -158,5 +158,15 @@ namespace WebApp.Services
                     Text = b.Name
                 }).ToList();
         }
+
+        public SelectList GetBusesSelectList()
+        {
+            return new SelectList(_context.Buses, "BusId", "Name");
+        }
+
+        public SelectList GetCompaniesSelectList()
+        {
+            return new SelectList(_context.TransportCompanies, "CompanyId", "Name");
+        }
     }
 }

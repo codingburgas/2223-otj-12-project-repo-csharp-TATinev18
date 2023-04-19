@@ -14,18 +14,14 @@ namespace WebApp.Controllers
     [Authorize]
     public class TicketController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITicketService _ticketService;
 
         public TicketController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ITicketService ticketService)
         {
-            _context = context;
             _userManager = userManager;
             _ticketService = ticketService;
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> BookTicket(string transportCompanyId, string startingDestination, string finalDestination, DateTime? date)
@@ -48,9 +44,6 @@ namespace WebApp.Controllers
             return View(model);
         }
 
-
-
-
         [HttpGet]
         public async Task<IActionResult> SelectSeat(Guid id)
         {
@@ -68,7 +61,6 @@ namespace WebApp.Controllers
 
             return View(await _ticketService.GenerateSelectSeatViewModel(id, destination));
         }
-
 
         public IActionResult Confirmation()
         {
@@ -89,8 +81,6 @@ namespace WebApp.Controllers
             return RedirectToAction("Confirmation");
         }
 
-        
-
         public async Task<IActionResult> MyTicket()
         {
             List<Ticket>? tickets = await _ticketService.GetTickets(_userManager.GetUserId(User));
@@ -103,8 +93,6 @@ namespace WebApp.Controllers
             return View(tickets);
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> CancelTicket(Guid ticketId)
         {
@@ -115,7 +103,5 @@ namespace WebApp.Controllers
 
             return RedirectToAction("MyTicket");
         }
-
-
     }
 }

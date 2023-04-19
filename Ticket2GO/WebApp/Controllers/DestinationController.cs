@@ -11,13 +11,11 @@ namespace WebApp.Controllers
 {
     public class DestinationController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDestinationService _destinationService;
 
         public DestinationController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDestinationService destinationService)
         {
-            _context = context;
             _userManager = userManager;
             _destinationService = destinationService;
         }
@@ -60,13 +58,12 @@ namespace WebApp.Controllers
                 ModelState.AddModelError("SelectedBusId", "Bus is required");
             }
 
-            ViewData["BusId"] = new SelectList(_context.Buses, "BusId", "Name", viewModel.SelectedBusId);
-            ViewData["CompanyId"] = new SelectList(_context.TransportCompanies, "CompanyId", "Name", viewModel.SelectedCompanyId);
+            ViewData["BusId"] = _destinationService.GetBusesSelectList();
+            ViewData["CompanyId"] = _destinationService.GetCompaniesSelectList();
             _destinationService.GetBuses(viewModel, TempData["CompanyId"].ToString());
 
             return View(viewModel);
         }
-
 
         public async Task<IActionResult> Details(Guid? id)
         {

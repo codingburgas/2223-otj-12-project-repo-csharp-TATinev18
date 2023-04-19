@@ -1,4 +1,5 @@
-﻿using WebApp.Areas.Identity.Data;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using WebApp.Areas.Identity.Data;
 using WebApp.Models;
 using WebApp.ViewModels;
 
@@ -13,5 +14,7 @@ namespace WebApp.Services.Interfaces
         public Task DeleteDestination(bool deleteAllRepetitions, Destination? destination);
         public Task CreateDestination(CreateDestinationViewModel viewModel);
         public void GetBuses(CreateDestinationViewModel viewModel, string companyId);
+        SelectList GetBusesSelectList();
+        SelectList GetCompaniesSelectList();
     }
 }
