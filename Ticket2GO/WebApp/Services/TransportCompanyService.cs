@@ -26,6 +26,11 @@ namespace WebApp.Services
 
         public async Task CreateTransportCompany(TransportCompanyViewModel viewModel, ApplicationUser user)
         {
+            if (string.IsNullOrEmpty(viewModel.Name) || viewModel.Logo == null)
+            {
+                return;
+            }
+
             byte[] logoBytes;
 
             using (var memoryStream = new MemoryStream())
