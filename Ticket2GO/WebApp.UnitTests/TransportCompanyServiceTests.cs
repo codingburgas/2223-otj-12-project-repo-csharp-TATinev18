@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using NUnit.Framework;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
 using WebApp.Models;
@@ -9,6 +7,8 @@ using WebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApp.Tests
 {
@@ -16,16 +16,30 @@ namespace WebApp.Tests
     {
         private ApplicationDbContext _context;
         private ITransportCompanyService _transportCompanyService;
+        private UserManager<ApplicationUser> _userManager;
+        private ServiceProvider _serviceProvider;
 
         [SetUp]
         public void Setup()
         {
+            IServiceCollection services = new ServiceCollection();
+            services.AddLogging();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDb"));
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+            services.AddAuthentication();
+
+            _serviceProvider = services.BuildServiceProvider();
+
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
                 .Options;
             _context = new ApplicationDbContext(options);
 
             _transportCompanyService = new TransportCompanyService(_context);
+
+            _userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         }
 
         [Test]
@@ -69,14 +83,58 @@ namespace WebApp.Tests
 
             var viewModel = new TransportCompanyViewModel
             {
-                Name = "", // Invalid input: empty name
-                Logo = null // Invalid input: null logo
+                Name = "",
+                Logo = null
             };
 
             await _transportCompanyService.CreateTransportCompany(viewModel, user);
 
             var transportCompany = await _context.TransportCompanies.FirstOrDefaultAsync(tc => tc.Name == viewModel.Name);
             Assert.IsNull(transportCompany);
+        }
+
+        [Test]
+        public async Task GetCurrentUsersTransportCompany_ReturnsCorrectTransportCompany()
+        {
+            // Create ApplicationUser
+            var user = new ApplicationUser
+            {
+                UserName = "testuser",
+                Email = "testuser@example.com",
+                FirstName = "John",
+                LastName = "Doe"
+            };
+            await _userManager.CreateAsync(user, "Test@123");
+
+            // Create TransportCompany
+            var transportCompany = new TransportCompany
+            {
+                Name = "Test Transport Company",
+                Logo = new byte[] { 1, 2, 3 },
+                DateCreated = DateTime.Now,
+                DateEdited = DateTime.Now
+            };
+            _context.TransportCompanies.Add(transportCompany);
+            await _context.SaveChangesAsync();
+
+            // Create TransportCompanyAspNetUser relationship
+            var transportCompanyAspNetUser = new TransportCompanyAspNetUser
+            {
+                TransportCompanyId = transportCompany.TransportCompanyId,
+                ApplicationUserId = user.Id
+            };
+            _context.TransportCompaniesAspNetUsers.Add(transportCompanyAspNetUser);
+            await _context.SaveChangesAsync();
+
+            // Create instance of TransportCompanyService
+            var transportCompanyService = new TransportCompanyService(_context);
+
+            // Call GetCurrentUsersTransportCompany and assert the result
+            var result = transportCompanyService.GetCurrentUsersTransportCompany(user);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(transportCompany.TransportCompanyId, result.TransportCompanyId);
+            Assert.AreEqual(user.Id, result.ApplicationUserId);
         }
 
         [TearDown]
