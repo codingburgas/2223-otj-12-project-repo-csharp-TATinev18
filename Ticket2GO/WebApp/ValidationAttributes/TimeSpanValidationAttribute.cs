@@ -7,7 +7,7 @@ public class TimeSpanAttribute : ValidationAttribute
         ErrorMessage = "The {0} field must be a valid time between {1} and {2}.";
     }
 
-    public override bool IsValid(object value)
+    public override bool IsValid(object? value)
     {
         if (value is not TimeSpan timeSpan)
         {
@@ -19,6 +19,8 @@ public class TimeSpanAttribute : ValidationAttribute
 
     public override string FormatErrorMessage(string name)
     {
-        return string.Format(ErrorMessage, name, "00:00:01", "24:00:00");
+        string defaultMessage = "{0} must be a valid time span between {1} and {2}.";
+        string message = ErrorMessage != null ? ErrorMessage : defaultMessage;
+        return string.Format(message, name, "00:00:01", "24:00:00");
     }
 }

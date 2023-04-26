@@ -14,7 +14,7 @@ namespace WebApp.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDestinationService _destinationService;
 
-        public DestinationController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDestinationService destinationService)
+        public DestinationController(UserManager<ApplicationUser> userManager, IDestinationService destinationService)
         {
             _userManager = userManager;
             _destinationService = destinationService;
@@ -55,12 +55,12 @@ namespace WebApp.Controllers
             }
             else
             {
-                ModelState.AddModelError("SelectedBusId", "Bus is required");
+                ModelState.AddModelError("SelectedBusId", "Изберете автобус");
             }
 
             ViewData["BusId"] = _destinationService.GetBusesSelectList();
             ViewData["CompanyId"] = _destinationService.GetCompaniesSelectList();
-            _destinationService.GetBuses(viewModel, TempData["CompanyId"].ToString());
+            _destinationService.GetBuses(viewModel, TempData["CompanyId"]?.ToString() ?? string.Empty);
 
             return View(viewModel);
         }

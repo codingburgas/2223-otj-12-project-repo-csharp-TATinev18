@@ -17,7 +17,7 @@ namespace WebApp.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITicketService _ticketService;
 
-        public TicketController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ITicketService ticketService)
+        public TicketController(UserManager<ApplicationUser> userManager, ITicketService ticketService)
         {
             _userManager = userManager;
             _ticketService = ticketService;
