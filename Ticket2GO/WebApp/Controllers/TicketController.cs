@@ -56,11 +56,13 @@ namespace WebApp.Controllers
 
             if (TempData["ErrorMessage"] != null)
             {
-                ModelState.AddModelError("SelectedSeat", TempData["ErrorMessage"].ToString());
+                ModelState.AddModelError("SelectedSeat", TempData["ErrorMessage"].ToString() ?? "");
             }
 
             return View(await _ticketService.GenerateSelectSeatViewModel(id, destination));
         }
+
+
 
         public IActionResult Confirmation()
         {
@@ -70,9 +72,9 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmBooking(SelectSeatViewModel model)
         {
-            if (!ModelState.IsValid && ModelState[nameof(model.SelectedSeat)].Errors.Any())
+            if (!ModelState.IsValid && ModelState[nameof(model.SelectedSeat)]?.Errors?.Any() == true)
             {
-                TempData["ErrorMessage"] = "Please select a seat.";
+                TempData["ErrorMessage"] = "Моля, изберете място.";
                 return RedirectToAction("SelectSeat", new { id = model.DestinationId });
             }
 
@@ -81,13 +83,14 @@ namespace WebApp.Controllers
             return RedirectToAction("Confirmation");
         }
 
+
         public async Task<IActionResult> MyTicket()
         {
             List<Ticket>? tickets = await _ticketService.GetTickets(_userManager.GetUserId(User));
 
             if (tickets == null || tickets.Count == 0)
             {
-                ViewData["Message"] = "You currently have no booked tickets.";
+                ViewData["Message"] = "В момента нямате запазени билети.";
             }
 
             return View(tickets);

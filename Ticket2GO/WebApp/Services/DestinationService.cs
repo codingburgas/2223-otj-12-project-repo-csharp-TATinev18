@@ -20,14 +20,15 @@ namespace WebApp.Services
         public async Task<List<Destination>> GetDestinations()
         {
             return await _context.Destinations
-                                             .Include(d => d.Bus)
-                                             .ThenInclude(b => b.TransportCompany)
-                                             .ToListAsync();
+                                 .Include(d => d.Bus)
+                                 .ThenInclude(b => b.TransportCompany)
+                                 .OrderBy(d => d.Departure)
+                                 .ToListAsync();
         }
 
         public CreateDestinationViewModel GetCompanies(ApplicationUser user)
         {
-            string managerId = user?.Id;
+            string managerId = user?.Id ?? "";
             var companies = _context.TransportCompaniesAspNetUsers
                 .Where(t => t.ApplicationUserId == managerId)
                 .Select(t => t.TransportCompany)
@@ -73,6 +74,11 @@ namespace WebApp.Services
 
         public async Task DeleteDestination(bool deleteAllRepetitions, Destination? destination)
         {
+            if (destination == null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             _context.Destinations.Remove(destination);
 
             if (deleteAllRepetitions)
@@ -98,6 +104,7 @@ namespace WebApp.Services
             await _context.SaveChangesAsync();
         }
 
+
         public async Task CreateDestination(CreateDestinationViewModel viewModel)
         {
             var destinations = new List<Destination>();
@@ -118,7 +125,7 @@ namespace WebApp.Services
                             Duration = viewModel.Duration,
                             Departure = currentDate,
                             TimeOfArrival = currentDate.Add(viewModel.Duration),
-                            BusId = viewModel.SelectedBusId.Value,
+                            BusId = viewModel.SelectedBusId.HasValue ? viewModel.SelectedBusId.Value : default,
                             RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
                             Price = viewModel.TotalPrice
                         });
@@ -131,17 +138,20 @@ namespace WebApp.Services
             }
             else
             {
-                destinations.Add(new Destination
+                if (viewModel.SelectedBusId.HasValue)
                 {
-                    StartingDestination = viewModel.StartingDestination,
-                    FinalDestination = viewModel.FinalDestination,
-                    Duration = viewModel.Duration,
-                    Departure = viewModel.Departure,
-                    TimeOfArrival = viewModel.TimeOfArrival,
-                    BusId = viewModel.SelectedBusId.Value,
-                    RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
-                    Price = viewModel.TotalPrice
-                });
+                    destinations.Add(new Destination
+                    {
+                        StartingDestination = viewModel.StartingDestination,
+                        FinalDestination = viewModel.FinalDestination,
+                        Duration = viewModel.Duration,
+                        Departure = viewModel.Departure,
+                        TimeOfArrival = viewModel.TimeOfArrival,
+                        BusId = viewModel.SelectedBusId.Value,
+                        RepeatingDayOfWeek = viewModel.RepeatingDayOfWeek,
+                        Price = viewModel.TotalPrice
+                    });
+                }
             }
 
             _context.AddRange(destinations);

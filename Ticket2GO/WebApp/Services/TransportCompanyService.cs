@@ -110,8 +110,11 @@ namespace WebApp.Services
                             .Where(tc => tc.TransportCompanyId == id);
             _context.TransportCompaniesAspNetUsers.RemoveRange(transportCompaniesAspNetUsers);
 
-            _context.TransportCompanies.Remove(transportCompany);
-            await _context.SaveChangesAsync();
+            if (transportCompany != null)
+            {
+                _context.TransportCompanies.Remove(transportCompany);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<Destination>> GetDestinations(Guid id)
@@ -123,6 +126,12 @@ namespace WebApp.Services
 
         public TransportCompanyViewModel GenerateTransportCompnayViewModel(TransportCompany? transportCompany)
         {
+
+            if (transportCompany == null)
+            {
+                return new TransportCompanyViewModel(); ;
+            }
+
             return new TransportCompanyViewModel
             {
                 TransportCompanyId = transportCompany.TransportCompanyId,
@@ -132,6 +141,11 @@ namespace WebApp.Services
 
         public async Task EditTransportCompany(TransportCompanyViewModel viewModel, TransportCompany? transportCompany)
         {
+            if (transportCompany == null)
+            {
+                return;
+            }
+
             transportCompany.Name = viewModel.Name;
             transportCompany.DateEdited = DateTime.Now;
 

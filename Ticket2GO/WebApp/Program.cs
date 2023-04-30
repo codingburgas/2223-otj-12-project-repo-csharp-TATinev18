@@ -23,11 +23,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
 
-
 builder.Services.AddRazorPages();
 
 var cultureInfo = new CultureInfo("bg-BG");
-
 
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
@@ -37,9 +35,6 @@ cultureInfo.NumberFormat.CurrencySymbol = "лв.";
 
 decimal amount = 1000.50m;
 string formattedAmount = string.Format("{0} {1:N2}", cultureInfo.NumberFormat.CurrencySymbol, amount);
-
-//Console.WriteLine(formattedAmount);
-
 
 var app = builder.Build();
 
