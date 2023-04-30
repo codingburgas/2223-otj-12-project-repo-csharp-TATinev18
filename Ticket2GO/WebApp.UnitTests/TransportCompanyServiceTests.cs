@@ -96,7 +96,6 @@ namespace WebApp.Tests
         [Test]
         public async Task GetCurrentUsersTransportCompany_ReturnsCorrectTransportCompany()
         {
-            // Create ApplicationUser
             var user = new ApplicationUser
             {
                 UserName = "testuser",
@@ -106,7 +105,6 @@ namespace WebApp.Tests
             };
             await _userManager.CreateAsync(user, "Test@123");
 
-            // Create TransportCompany
             var transportCompany = new TransportCompany
             {
                 Name = "Test Transport Company",
@@ -117,7 +115,6 @@ namespace WebApp.Tests
             _context.TransportCompanies.Add(transportCompany);
             await _context.SaveChangesAsync();
 
-            // Create TransportCompanyAspNetUser relationship
             var transportCompanyAspNetUser = new TransportCompanyAspNetUser
             {
                 TransportCompanyId = transportCompany.TransportCompanyId,
@@ -126,10 +123,8 @@ namespace WebApp.Tests
             _context.TransportCompaniesAspNetUsers.Add(transportCompanyAspNetUser);
             await _context.SaveChangesAsync();
 
-            // Create instance of TransportCompanyService
             var transportCompanyService = new TransportCompanyService(_context);
 
-            // Call GetCurrentUsersTransportCompany and assert the result
             var result = transportCompanyService.GetCurrentUsersTransportCompany(user);
 
             Assert.IsNotNull(result);

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
 using WebApp.Models;
@@ -9,6 +11,7 @@ using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
+    [Authorize(Roles = "Company Manager")]
     public class DestinationController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
