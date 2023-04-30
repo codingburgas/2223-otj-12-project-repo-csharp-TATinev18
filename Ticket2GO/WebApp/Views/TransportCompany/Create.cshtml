@@ -1,9 +1,9 @@
 ﻿@model WebApp.ViewModels.TransportCompanyViewModel
 @{
-    ViewData["Title"] = "Create Transport Company";
+    ViewData["Title"] = "Добавяне на автобусна компания";
 }
 
-<h1>Create Transport Company</h1>
+<h1>Добавяне на автобусна компания</h1>
 
 <div class="row">
     <div class="col-md-6">
@@ -11,13 +11,13 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="Name" class="control-label">Name</label>
+                <label asp-for="Name" class="control-label">Име</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Logo" class="control-label">Logo</label>
+                <label asp-for="Logo" class="control-label">Лого</label>
                 <input asp-for="Logo" type="file" class="form-control" accept="image/*" />
                 <span asp-validation-for="Logo" class="text-danger"></span>
             </div>
@@ -30,5 +30,5 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Назад</a>
 </div>

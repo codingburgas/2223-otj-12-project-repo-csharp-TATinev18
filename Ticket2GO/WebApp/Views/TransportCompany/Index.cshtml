@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<WebApp.Models.TransportCompany>
 
 @{
-    ViewData["Title"] = "Transport Companies";
+    ViewData["Title"] = "Автобусни компании";
 }
 
-<h1>Transport Companies</h1>
+<h1>Автобусни компании</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Create New</a>
@@ -14,9 +14,9 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Logo</th>
-                <th>Actions</th>
+                <th>Име</th>
+                <th>Лого</th>
+                <th>Опции</th>
             </tr>
         </thead>
         <tbody>
@@ -28,13 +28,13 @@
                         <img src="data:image/png;base64,@Convert.ToBase64String(item.Logo)" alt="@item.Name Logo" style="width: 100px; height: auto;" />
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.TransportCompanyId" class="btn btn-sm btn-secondary">Edit</a>
-                        <a asp-action="Details" asp-route-id="@item.TransportCompanyId" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.TransportCompanyId" class="btn btn-sm btn-secondary">Редактиране</a>
+                        <a asp-action="Details" asp-route-id="@item.TransportCompanyId" class="btn btn-sm btn-info">Подробности</a>
+                        <a asp-action="Buses" asp-route-transportCompanyId="@item.TransportCompanyId" class="btn btn-sm btn-secondary">Автобуси</a>
                         <form asp-action="Delete" method="post" style="display:inline;">
                             <input type="hidden" asp-for="@item.TransportCompanyId" name="id" />
                             <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Наистина ли искате да изтриете компанията');" />
                         </form>
-                        <a asp-action="Buses" asp-route-transportCompanyId="@item.TransportCompanyId">Buses</a> |
                     </td>
                 </tr>
             }

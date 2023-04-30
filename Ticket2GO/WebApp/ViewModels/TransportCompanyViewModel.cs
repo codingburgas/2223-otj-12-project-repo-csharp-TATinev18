@@ -6,11 +6,11 @@ namespace WebApp.ViewModels
     {
         public Guid TransportCompanyId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Въведете име")]
         [Display(Name = "Company Name")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Моля, прикачете снимка.")]
+        [Required(ErrorMessage = "Моля, прикачете лого.")]
         [Display(Name = "Logo")]
         public IFormFile Logo { get; set; }
     }
