@@ -61,8 +61,6 @@ namespace WebApp.Controllers
             return View(await _ticketService.GenerateSelectSeatViewModel(id, destination));
         }
 
-
-
         public IActionResult Confirmation()
         {
             return View();
@@ -81,7 +79,6 @@ namespace WebApp.Controllers
 
             return RedirectToAction("Confirmation");
         }
-
 
         public async Task<IActionResult> MyTicket()
         {
