@@ -61,6 +61,11 @@ namespace WebApp.Services
             var originDestination = _context.Destinations
                                 .FirstOrDefault(d => d.DestinationId == model.SelectedOriginDestinationId);
 
+            if (originDestination == null)
+            {
+                throw new ArgumentException("Invalid origin destination ID.");
+            }
+
             var ticket = new Ticket
             {
                 ApplicationUserId = userId,
@@ -71,6 +76,12 @@ namespace WebApp.Services
             if (model.IsRoundTrip)
             {
                 var returnDestination = GetReturnDestinations(model.SelectedOriginDestinationId, ds => ds.FirstOrDefault());
+
+                if (returnDestination == null)
+                {
+                    throw new ArgumentException("Invalid return destination.");
+                }
+
                 ticket.TotalPrice += returnDestination.Price;
             }
 
@@ -89,6 +100,11 @@ namespace WebApp.Services
             {
                 var returnDestination = GetReturnDestinations(model.SelectedOriginDestinationId, ds => ds.FirstOrDefault());
 
+                if (returnDestination == null)
+                {
+                    throw new ArgumentException("Invalid return destination.");
+                }
+
                 var returnTicketDestination = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
@@ -100,6 +116,7 @@ namespace WebApp.Services
 
             await _context.SaveChangesAsync();
         }
+
 
         public void GetReturnDestinations(BookTicketViewModel model)
         {
@@ -115,6 +132,11 @@ namespace WebApp.Services
 
         public async Task<SelectSeatViewModel> GenerateSelectSeatViewModel(Guid id, Destination? destination)
         {
+            if (destination == null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             var returnDestinations = GetReturnDestinations(id, ds => ds.Select(d => new SelectListItem
             {
                 Value = d.DestinationId.ToString(),
@@ -140,6 +162,7 @@ namespace WebApp.Services
             return model;
         }
 
+
         public async Task<Destination?> GetDestinations(Guid id)
         {
             return await _context.Destinations
@@ -155,6 +178,11 @@ namespace WebApp.Services
                 .FirstOrDefault();
 
             decimal totalPrice = model.Price + (returnDestination?.Price ?? 0);
+
+            if (!model.SelectedSeat.HasValue)
+            {
+                throw new ArgumentException("Seat number is not specified.");
+            }
 
             var ticket = new Ticket
             {
