@@ -55,7 +55,7 @@ namespace WebApp.Controllers
 
             if (TempData["ErrorMessage"] != null)
             {
-                ModelState.AddModelError("SelectedSeat", TempData["ErrorMessage"].ToString() ?? "");
+                ModelState.AddModelError("SelectedSeat", TempData["ErrorMessage"]?.ToString() ?? "");
             }
 
             return View(await _ticketService.GenerateSelectSeatViewModel(id, destination));

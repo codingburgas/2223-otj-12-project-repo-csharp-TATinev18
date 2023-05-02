@@ -160,8 +160,6 @@ namespace WebApp.Controllers
             return View(viewModel);
         }
 
-        
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, TransportCompanyViewModel viewModel)
