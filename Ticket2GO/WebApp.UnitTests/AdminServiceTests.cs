@@ -45,12 +45,12 @@ namespace WebApp.Tests
 
             var userRoleViewModels = await _adminService.GetUsers();
 
-            Assert.AreEqual(1, userRoleViewModels.Count);
+            Assert.That(userRoleViewModels.Count, Is.EqualTo(1));
             var viewModel = userRoleViewModels.First();
-            Assert.AreEqual(user.Id, viewModel.UserId);
-            Assert.AreEqual(user.Email, viewModel.Email);
-            Assert.AreEqual(user.FirstName, viewModel.FirstName);
-            Assert.AreEqual(user.LastName, viewModel.LastName);
+            Assert.That(viewModel.UserId, Is.EqualTo(user.Id));
+            Assert.That(viewModel.Email, Is.EqualTo(user.Email));
+            Assert.That(viewModel.FirstName, Is.EqualTo(user.FirstName));
+            Assert.That(viewModel.LastName, Is.EqualTo(user.LastName));
         }
 
         [TearDown]

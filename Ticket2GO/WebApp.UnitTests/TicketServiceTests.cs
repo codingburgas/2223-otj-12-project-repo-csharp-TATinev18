@@ -52,12 +52,11 @@ namespace WebApp.Tests
             var result = await _ticketService.GetTickets(transportCompany.TransportCompanyId.ToString(), "A", "B", null);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Destinations.Count);
-
+            Assert.That(result.Destinations.Count, Is.EqualTo(1));
             var firstResult = result.Destinations.First();
-            Assert.AreEqual(destination.DestinationId, firstResult.DestinationId);
-            Assert.AreEqual(destination.StartingDestination, firstResult.StartingDestination);
-            Assert.AreEqual(destination.FinalDestination, firstResult.FinalDestination);
+            Assert.That(firstResult.DestinationId, Is.EqualTo(destination.DestinationId));
+            Assert.That(firstResult.StartingDestination, Is.EqualTo(destination.StartingDestination));
+            Assert.That(firstResult.FinalDestination, Is.EqualTo(destination.FinalDestination));
         }
 
         [TearDown]

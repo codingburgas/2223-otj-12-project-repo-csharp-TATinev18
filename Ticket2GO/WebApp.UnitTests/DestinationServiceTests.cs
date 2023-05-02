@@ -38,16 +38,16 @@ namespace WebApp.Tests
 
             await _destinationService.CreateDestination(viewModel);
 
-            Assert.AreEqual(1, _context.Destinations.CountAsync().Result);
+            Assert.That(_context.Destinations.CountAsync().Result, Is.EqualTo(1));
             var destination = await _context.Destinations.FirstAsync();
-            Assert.AreEqual(viewModel.StartingDestination, destination.StartingDestination);
-            Assert.AreEqual(viewModel.FinalDestination, destination.FinalDestination);
-            Assert.AreEqual(viewModel.Duration, destination.Duration);
-            Assert.AreEqual(viewModel.Departure, destination.Departure);
-            Assert.AreEqual(viewModel.TimeOfArrival, destination.TimeOfArrival);
-            Assert.AreEqual(viewModel.SelectedBusId, destination.BusId);
-            Assert.AreEqual(viewModel.RepeatingDayOfWeek, destination.RepeatingDayOfWeek);
-            Assert.AreEqual(viewModel.TotalPrice, destination.Price);
+            Assert.That(destination.StartingDestination, Is.EqualTo(viewModel.StartingDestination));
+            Assert.That(destination.FinalDestination, Is.EqualTo(viewModel.FinalDestination));
+            Assert.That(destination.Duration, Is.EqualTo(viewModel.Duration));
+            Assert.That(destination.Departure, Is.EqualTo(viewModel.Departure));
+            Assert.That(destination.TimeOfArrival, Is.EqualTo(viewModel.TimeOfArrival));
+            Assert.That(destination.BusId, Is.EqualTo(viewModel.SelectedBusId));
+            Assert.That(destination.RepeatingDayOfWeek, Is.EqualTo(viewModel.RepeatingDayOfWeek));
+            Assert.That(destination.Price, Is.EqualTo(viewModel.TotalPrice));
         }
 
         [TestCase(40000)]
@@ -74,7 +74,7 @@ namespace WebApp.Tests
 
             await _destinationService.CreateDestination(viewModel);
 
-            Assert.AreEqual(0, _context.Destinations.CountAsync().Result);
+            Assert.That(_context.Destinations.CountAsync().Result, Is.EqualTo(0));
         }
 
         [TestCase("", "Los Angeles")]
@@ -101,7 +101,7 @@ namespace WebApp.Tests
 
             await _destinationService.CreateDestination(viewModel);
 
-            Assert.AreEqual(0, _context.Destinations.CountAsync().Result);
+            Assert.That(_context.Destinations.CountAsync().Result, Is.EqualTo(0));
         }
 
         [TearDown]

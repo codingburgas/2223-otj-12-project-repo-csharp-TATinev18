@@ -84,7 +84,7 @@ namespace WebApp.Tests
             var viewModel = new TransportCompanyViewModel
             {
                 Name = "",
-                Logo = null
+                Logo = null!
             };
 
             await _transportCompanyService.CreateTransportCompany(viewModel, user);
@@ -128,8 +128,8 @@ namespace WebApp.Tests
             var result = transportCompanyService.GetCurrentUsersTransportCompany(user);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(transportCompany.TransportCompanyId, result.TransportCompanyId);
-            Assert.AreEqual(user.Id, result.ApplicationUserId);
+            Assert.That(result.TransportCompanyId, Is.EqualTo(transportCompany.TransportCompanyId));
+            Assert.That(result.ApplicationUserId, Is.EqualTo(user.Id));
         }
 
         [TearDown]
