@@ -53,6 +53,71 @@ namespace WebApp.Tests
             Assert.That(viewModel.LastName, Is.EqualTo(user.LastName));
         }
 
+        [Test]
+        public async Task GetUser_ValidUserId_ReturnsUser()
+        {
+            var user = new ApplicationUser { Email = "test@test.com", UserName = "test@test.com", FirstName = "Test", LastName = "User" };
+            await _userManager.CreateAsync(user);
+
+            var result = await _adminService.GetUser(user.Id);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Id, Is.EqualTo(user.Id));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+            Assert.That(result.FirstName, Is.EqualTo(user.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(user.LastName));
+        }
+
+        [Test]
+        public async Task GetUserInformation_ValidUser_ReturnsUserInformation()
+        {
+            var user = new ApplicationUser { Email = "test@test.com", UserName = "test@test.com", FirstName = "Test", LastName = "User" };
+            await _userManager.CreateAsync(user);
+
+            var role = new IdentityRole { Name = "Admin" };
+            await _roleManager.CreateAsync(role);
+            await _userManager.AddToRoleAsync(user, role.Name);
+
+            var result = await _adminService.GetUserInformation(user);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.UserId, Is.EqualTo(user.Id));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+            Assert.That(result.FirstName, Is.EqualTo(user.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(user.LastName));
+            Assert.That(result.Roles, Is.Not.Null);
+            Assert.That(result.Roles, Has.Member(role.Name));
+            Assert.That(result.AvailableRoles, Is.Not.Null);
+            Assert.That(result.AvailableRoles, Has.Member(role.Name));
+        }
+
+        [Test]
+        public async Task EditUser_ValidInput_UpdatesUser()
+        {
+            var user = new ApplicationUser { Email = "test@test.com", UserName = "test@test.com", FirstName = "Test", LastName = "User" };
+            await _userManager.CreateAsync(user);
+
+            var updatedModel = new ManageUserRolesViewModel
+            {
+                UserId = user.Id,
+                Email = "updated@test.com",
+                FirstName = "Updated",
+                LastName = "User"
+            };
+
+            var updateResult = await _adminService.EditUser(updatedModel, user);
+            var updatedUser = await _userManager.FindByIdAsync(user.Id);
+
+            Assert.That(updateResult.Succeeded, Is.True);
+            Assert.That(updatedUser, Is.Not.Null);
+            Assert.That(updatedUser.Id, Is.EqualTo(updatedModel.UserId));
+            Assert.That(updatedUser.Email, Is.EqualTo(updatedModel.Email));
+            Assert.That(updatedUser.UserName, Is.EqualTo(updatedModel.Email));
+            Assert.That(updatedUser.FirstName, Is.EqualTo(updatedModel.FirstName));
+            Assert.That(updatedUser.LastName, Is.EqualTo(updatedModel.LastName));
+        }
+
+
         [TearDown]
         public void TearDown()
         {
