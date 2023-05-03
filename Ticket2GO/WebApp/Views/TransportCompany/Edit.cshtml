@@ -1,26 +1,26 @@
 ﻿@model WebApp.ViewModels.TransportCompanyViewModel
 
 @{
-    ViewData["Title"] = "Edit Transport Company";
+    ViewData["Title"] = "Редактиране";
 }
 
-<h1>Edit Transport Company</h1>
+<h1>Редактирай компанията</h1>
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="TransportCompanyId" />
     <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
+        <label asp-for="Name" class="control-label">Име</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Logo" class="control-label"></label>
+        <label asp-for="Logo" class="control-label">Лого</label>
         <input asp-for="Logo" type="file" class="form-control" />
         <span asp-validation-for="Logo" class="text-danger"></span>
     </div>
     <div class="form-group">
         <input type="submit" value="Save" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <a asp-action="Index" class="btn btn-secondary">Откажи</a>
     </div>
 </form>
 

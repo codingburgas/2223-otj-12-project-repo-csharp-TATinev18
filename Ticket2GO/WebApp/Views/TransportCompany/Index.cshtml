@@ -7,7 +7,7 @@
 <h1>Автобусни компании</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Добави компания</a>
 </p>
 
 <div class="table-responsive">
@@ -33,7 +33,7 @@
                         <a asp-action="Buses" asp-route-transportCompanyId="@item.TransportCompanyId" class="btn btn-sm btn-secondary">Автобуси</a>
                         <form asp-action="Delete" method="post" style="display:inline;">
                             <input type="hidden" asp-for="@item.TransportCompanyId" name="id" />
-                            <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Наистина ли искате да изтриете компанията');" />
+                            <input type="submit" value="Изтрий" class="btn btn-danger" onclick="return confirm('Наистина ли искате да изтриете компанията');" />
                         </form>
                     </td>
                 </tr>

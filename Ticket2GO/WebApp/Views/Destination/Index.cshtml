@@ -39,6 +39,7 @@
                     <td>@item.Price.ToString("C", CultureInfo.CurrentCulture)</td>
                     <td>
                         <a asp-action="Details" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-info">Детайли</a>
+                        <br>
                         <a asp-action="Delete" asp-controller="Destination" asp-route-id="@item.DestinationId" class="btn btn-sm btn-danger">Изтрий</a>
                     </td>
                 </tr>

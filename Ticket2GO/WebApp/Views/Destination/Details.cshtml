@@ -2,53 +2,53 @@
 @model WebApp.Models.Destination
 
 @{
-    ViewData["Title"] = "Destination Details";
+    ViewData["Title"] = "Информация за маршрута";
 }
 
 <div class="container">
-    <h1 class="my-4">Destination Details</h1>
+    <h1 class="my-4">Информация за маршрута</h1>
 
     <div class="card">
         <div class="card-body">
             <dl class="row">
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.StartingDestination)
+                    Начална дестинация
                 </dt>
                 <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.StartingDestination)
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.FinalDestination)
+                    Крайна дестинация
                 </dt>
                 <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.FinalDestination)
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Duration)
+                    Продължителност
                 </dt>
                 <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Duration)
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Departure)
+                    Дата на заминаване
                 </dt>
                 <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.Departure)
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.TimeOfArrival)
+                    Дата на пристигане
                 </dt>
                 <dd class="col-sm-8">
                     @Html.DisplayFor(model => model.TimeOfArrival)
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Bus.Name)
+                    Автобус
                 </dt>
                 <dd class="col-sm-8">
                     @Model.Bus.Name
                 </dd>
                 <dt class="col-sm-4">
-                    @Html.DisplayNameFor(model => model.Price)
+                    Цена
                 </dt>
                 <dd class="col-sm-8">
                     @Model.Price.ToString("C", CultureInfo.CurrentCulture)
@@ -58,7 +58,6 @@
     </div>
 
     <div class="mt-4">
-        <a asp-action="Edit" asp-route-id="@Model.DestinationId" class="btn btn-primary">Edit</a> |
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
     </div>
 </div>

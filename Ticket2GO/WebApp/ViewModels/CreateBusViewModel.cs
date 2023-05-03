@@ -4,11 +4,11 @@ namespace WebApp.ViewModels
 {
     public class CreateBusViewModel
     {
-        [Required]
+        [Required(ErrorMessage ="Въведете име")]
         [StringLength(100)]
         public string Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Въведете броя на местата")]
         public int SeatsNumber { get; set; }    
 
         public Guid TransportCompanyId { get; set; }

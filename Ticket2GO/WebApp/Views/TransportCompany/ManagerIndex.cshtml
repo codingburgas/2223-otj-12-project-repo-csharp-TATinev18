@@ -13,10 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                Име
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Logo)
+                Лого
             </th>
             <th></th>
         </tr>
@@ -37,7 +37,7 @@
                     <a asp-action="Buses" asp-route-transportCompanyId="@item.TransportCompanyId" class="btn btn-secondary">Автобуси</a>
                     <form asp-action="Delete" method="post" style="display:inline;">
                         <input type="hidden" asp-for="@item.TransportCompanyId" name="id" />
-                        <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Наистина ли искате да изтриете компанията?');" />
+                        <input type="submit" value="Изтрий" class="btn btn-danger" onclick="return confirm('Наистина ли искате да изтриете компанията?');"/>
                     </form>
                 </td>
             </tr>

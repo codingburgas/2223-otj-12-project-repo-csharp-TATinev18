@@ -1,32 +1,32 @@
 ﻿@model TransportCompany
 
 @{
-    ViewData["Title"] = "Transport Company Details";
+    ViewData["Title"] = "Информация за компанията";
 }
 
-<h1>Transport Company Details</h1>
+<h1>Информация за компанията</h1>
 
 <dl class="row">
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Name)
+        Име
     </dt>
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.Name)
     </dd>
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Logo)
+        Лого
     </dt>
     <dd class="col-sm-10">
         <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Logo)" alt="@Model.Name Logo" width="100" height="100" />
     </dd>
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.DateCreated)
+        Дата на създаване
     </dt>
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.DateCreated)
     </dd>
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.DateEdited)
+        Последни промени
     </dt>
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.DateEdited)
@@ -34,6 +34,6 @@
 </dl>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.TransportCompanyId" class="btn btn-secondary">Edit</a>
-    <a asp-action="Index" class="btn btn-info">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.TransportCompanyId" class="btn btn-secondary">Редактирай</a>
+    <a asp-action="Index" class="btn btn-info">Назад</a>
 </div>
