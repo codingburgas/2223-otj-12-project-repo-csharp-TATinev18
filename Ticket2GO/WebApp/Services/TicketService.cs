@@ -44,6 +44,8 @@ namespace WebApp.Services
 
             var filteredDestinations = await destinations.ToListAsync();
 
+            filteredDestinations = filteredDestinations.Where(d => (GetAvailableSeatsAsync(d)).Result.Any()).ToList();
+
             var model = new BookTicketViewModel
             {
                 Destinations = filteredDestinations,
@@ -55,6 +57,7 @@ namespace WebApp.Services
             };
             return model;
         }
+
 
         public async Task BookTicket(BookTicketViewModel model, string userId)
         {
@@ -129,7 +132,6 @@ namespace WebApp.Services
             }).ToList());
         }
 
-
         public async Task<SelectSeatViewModel> GenerateSelectSeatViewModel(Guid id, Destination? destination)
         {
             if (destination == null)
@@ -143,7 +145,7 @@ namespace WebApp.Services
                 Text = $"{d.StartingDestination} - {d.FinalDestination} ({d.Bus.TransportCompany.Name}) - {d.Departure.ToString("dd/MM/yyyy HH:mm")} - {d.TimeOfArrival.ToString("dd/MM/yyyy hh:mm")} - {d.Price.ToString("C2")}"
             }).ToList());
 
-            var availableSeats = await GetAvailableSeatsAsync(destination.BusId, destination.Bus.SeatsNumber);
+            var availableSeats = await GetAvailableSeatsAsync(destination);
 
             var model = new SelectSeatViewModel
             {
@@ -161,7 +163,6 @@ namespace WebApp.Services
             };
             return model;
         }
-
 
         public async Task<Destination?> GetDestinations(Guid id)
         {
@@ -240,10 +241,11 @@ namespace WebApp.Services
 
             return true;
         }
-        private async Task<IEnumerable<int>> GetAvailableSeatsAsync(Guid busId, int seatsNumber)
+
+        private async Task<IEnumerable<int>> GetAvailableSeatsAsync(Destination destination)
         {
             var destinations = await _context.Destinations
-                .Where(d => d.BusId == busId)
+                .Where(d => d.BusId == destination.BusId && d.Departure.Date == destination.Departure.Date)
                 .Select(d => d.DestinationId)
                 .ToListAsync();
 
@@ -253,7 +255,7 @@ namespace WebApp.Services
                 .Distinct()
                 .ToListAsync();
 
-            var availableSeats = Enumerable.Range(1, seatsNumber).Where(seat => !takenSeats.Contains(seat)).ToList();
+            var availableSeats = Enumerable.Range(1, destination.Bus.SeatsNumber).Where(seat => !takenSeats.Contains(seat)).ToList();
 
             return availableSeats ?? new List<int>();
         }
