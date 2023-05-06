@@ -56,14 +56,18 @@ namespace WebApp.Controllers
                 await _destinationService.CreateDestination(viewModel);
                 return RedirectToAction(nameof(Index));
             }
-            else
+
+            if (!viewModel.SelectedBusId.HasValue)
             {
                 ModelState.AddModelError("SelectedBusId", "Изберете автобус");
             }
 
+            string companyId = TempData["CompanyId"]?.ToString() ?? string.Empty;
+            TempData["CompanyId"] = companyId;
+
             ViewData["BusId"] = _destinationService.GetBusesSelectList();
             ViewData["CompanyId"] = _destinationService.GetCompaniesSelectList();
-            _destinationService.GetBuses(viewModel, TempData["CompanyId"]?.ToString() ?? string.Empty);
+            _destinationService.GetBuses(viewModel, companyId);
 
             return View(viewModel);
         }

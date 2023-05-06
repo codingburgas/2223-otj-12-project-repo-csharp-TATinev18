@@ -160,13 +160,20 @@ namespace WebApp.Services
 
         public void GetBuses(CreateDestinationViewModel viewModel, string companyId)
         {
-            viewModel.Buses = _context.Buses
-                .Where(b => b.TransportCompanyId == new Guid(companyId))
-                .Select(b => new SelectListItem
-                {
-                    Value = b.BusId.ToString(),
-                    Text = b.Name
-                }).ToList();
+            if (Guid.TryParse(companyId, out Guid parsedCompanyId))
+            {
+                viewModel.Buses = _context.Buses
+                    .Where(b => b.TransportCompanyId == parsedCompanyId)
+                    .Select(b => new SelectListItem
+                    {
+                        Value = b.BusId.ToString(),
+                        Text = b.Name
+                    }).ToList();
+            }
+            else
+            {
+                viewModel.Buses = new List<SelectListItem>();
+            }
         }
 
         public SelectList GetBusesSelectList()
