@@ -35,15 +35,27 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult RedirectToCreateWithCompanyId(CreateDestinationViewModel viewModel)
+        public async Task<IActionResult> RedirectToCreateWithCompanyId(CreateDestinationViewModel viewModel)
         {
-            return RedirectToAction("Create", new { companyId = viewModel.SelectedCompanyId });
+            if (viewModel.SelectedCompanyId != Guid.Empty)
+            {
+                return RedirectToAction("Create", new { companyId = viewModel.SelectedCompanyId });
+            }
+            else
+            {
+                ModelState.AddModelError("SelectedCompanyId", "Изберете компания.");
+                return View("SelectCompany", _destinationService.GetCompanies(await _userManager.GetUserAsync(User)));
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(Guid companyId)
         {
-            TempData["CompanyId"] = companyId.ToString();
+            if (companyId == Guid.Empty)
+            {
+                return RedirectToAction("SelectCompany");
+            }
+
             return View(await _destinationService.CreateDestination(companyId));
         }
 

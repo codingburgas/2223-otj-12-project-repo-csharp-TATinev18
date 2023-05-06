@@ -7,11 +7,13 @@
 <h1>Автобусна компания</h1>
 
 <form asp-action="RedirectToCreateWithCompanyId">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="SelectedCompanyId">Transport Company</label>
         <select asp-for="SelectedCompanyId" asp-items="Model.Companies" class="form-control">
             <option value="">-- Автобуна компания --</option>
         </select>
+        <span asp-validation-for="SelectedCompanyId" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Избери</button>
 </form>
