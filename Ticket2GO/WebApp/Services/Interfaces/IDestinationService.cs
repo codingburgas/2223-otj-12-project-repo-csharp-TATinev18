@@ -8,7 +8,7 @@ namespace WebApp.Services.Interfaces
     public interface IDestinationService
     {
         public Task<List<Destination>> GetDestinations();
-        public CreateDestinationViewModel GetCompanies(ApplicationUser user);
+        public Task<CreateDestinationViewModel> GetCompaniesAsync(ApplicationUser user);
         public Task<CreateDestinationViewModel> CreateDestination(Guid companyId);
         public Task<Destination?> GetDestination(Guid? id);
         public Task DeleteDestination(bool deleteAllRepetitions, Destination? destination);

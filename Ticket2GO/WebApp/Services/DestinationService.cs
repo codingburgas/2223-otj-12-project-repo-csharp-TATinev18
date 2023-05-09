@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
 using WebApp.Data;
@@ -11,10 +12,12 @@ namespace WebApp.Services
     public class DestinationService : IDestinationService
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DestinationService(ApplicationDbContext context)
+        public DestinationService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<List<Destination>> GetDestinations()
@@ -26,24 +29,34 @@ namespace WebApp.Services
                                  .ToListAsync();
         }
 
-        public CreateDestinationViewModel GetCompanies(ApplicationUser user)
+        public async Task<CreateDestinationViewModel> GetCompaniesAsync(ApplicationUser user)
         {
-            string managerId = user?.Id ?? "";
-            var companies = _context.TransportCompaniesAspNetUsers
-                .Where(t => t.ApplicationUserId == managerId)
-                .Select(t => t.TransportCompany)
-                .ToList();
+            var viewModel = new CreateDestinationViewModel();
 
-            var companySelectListItems = companies.Select(c => new SelectListItem
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                Value = c.TransportCompanyId.ToString(),
-                Text = c.Name
-            }).ToList();
+                viewModel.Companies = _context.TransportCompanies
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.TransportCompanyId.ToString(),
+                        Text = c.Name
+                    }).ToList();
+            }
+            else
+            {
+                string managerId = user?.Id ?? "";
+                var companies = _context.TransportCompaniesAspNetUsers
+                    .Where(t => t.ApplicationUserId == managerId)
+                    .Select(t => t.TransportCompany)
+                    .ToList();
 
-            var viewModel = new CreateDestinationViewModel
-            {
-                Companies = companySelectListItems
-            };
+                viewModel.Companies = companies.Select(c => new SelectListItem
+                {
+                    Value = c.TransportCompanyId.ToString(),
+                    Text = c.Name
+                }).ToList();
+            }
+
             return viewModel;
         }
 

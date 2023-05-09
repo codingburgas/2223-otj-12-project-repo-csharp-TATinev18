@@ -54,7 +54,7 @@
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Администраторски Панел</a>
                                 </li>
                             }
-                            @if (User.IsInRole("Company Manager"))
+                            @if (User.IsInRole("Company Manager") || User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Destination" asp-action="Index">Маршрути</a>

@@ -11,7 +11,7 @@ using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
-    [Authorize(Roles = "Company Manager")]
+    [Authorize(Roles = "Company Manager, Admin")]
     public class DestinationController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -31,7 +31,7 @@ namespace WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> SelectCompany()
         {
-            return View(_destinationService.GetCompanies(await _userManager.GetUserAsync(User)));
+            return View(await _destinationService.GetCompaniesAsync(await _userManager.GetUserAsync(User)));
         }
 
         [HttpPost]
@@ -44,7 +44,7 @@ namespace WebApp.Controllers
             else
             {
                 ModelState.AddModelError("SelectedCompanyId", "Изберете компания.");
-                return View("SelectCompany", _destinationService.GetCompanies(await _userManager.GetUserAsync(User)));
+                return View("SelectCompany", await _destinationService.GetCompaniesAsync(await _userManager.GetUserAsync(User)));
             }
         }
 

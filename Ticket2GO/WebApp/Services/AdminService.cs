@@ -134,5 +134,13 @@ namespace WebApp.Services
             var admins = await _dbContext.Admins.Include(a => a.ApplicationUser).ToListAsync();
             return admins.Select(a => a.ApplicationUser).ToList();
         }
+
+        public async Task UpdateAdminRoles(ApplicationUser user, IList<string> roles)
+        {
+            await _userManager.RemoveFromRolesAsync(user, await _userManager.GetRolesAsync(user));
+            await _userManager.AddToRolesAsync(user, roles);
+
+            await UpdateAdminTable(user);
+        }
     }
 }
