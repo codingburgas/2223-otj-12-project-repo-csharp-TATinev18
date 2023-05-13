@@ -11,6 +11,7 @@ using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
+    [Authorize(Roles = "User,Admin,Company Manager")]
     public class TicketController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

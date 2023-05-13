@@ -25,11 +25,6 @@ namespace WebApp.Data.Configurations
                  {
                      Name = "User",
                      NormalizedName = "USER"
-                 },
-                 new IdentityRole
-                 {
-                     Name = "Unassigned",
-                     NormalizedName = "UNASSIGNED"
                  }
                 );
         }

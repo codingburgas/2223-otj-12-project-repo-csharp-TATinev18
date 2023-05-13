@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WebApp.Areas.Identity.Data;
 using WebApp.Data;
 using WebApp.Services;
 using WebApp.ViewModels;
@@ -18,7 +21,10 @@ namespace WebApp.Tests
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            _destinationService = new DestinationService(_context);
+            var userStore = new UserStore<ApplicationUser>(_context);
+            var userManager = new UserManager<ApplicationUser>(userStore, null, null, null, null, null, null, null, null);
+
+            _destinationService = new DestinationService(_context, userManager);
         }
 
         [Test]
@@ -64,7 +70,7 @@ namespace WebApp.Tests
                 TimeOfArrival = DateTime.Now.AddHours(6),
                 SelectedBusId = Guid.NewGuid(),
                 RepeatingDayOfWeek = null,
-                TotalPrice = totalPrice // Set an invalid value for TotalPrice
+                TotalPrice = totalPrice
             };
 
             if (viewModel.TotalPrice < 0.01m || viewModel.TotalPrice > 9999.99m)

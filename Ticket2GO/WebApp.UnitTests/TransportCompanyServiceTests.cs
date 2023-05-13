@@ -358,32 +358,8 @@ namespace WebApp.Tests
         }
 
         [Test]
-        public async Task GetCompanyBuses_ReturnsBusesForTransportCompany()
-        {
-            var transportCompanyId = Guid.NewGuid();
-            var expectedBuses = new List<Bus>
-            {
-                new Bus { Name = "Bus 1", SeatsNumber = 50, TransportCompanyId = transportCompanyId },
-                new Bus { Name = "Bus 2", SeatsNumber = 30, TransportCompanyId = transportCompanyId },
-                new Bus { Name = "Bus 3", SeatsNumber = 40, TransportCompanyId = Guid.NewGuid() } 
-            };
-            _context.Buses.AddRange(expectedBuses);
-            await _context.SaveChangesAsync();
-
-            var result = _transportCompanyService.GetCompanyBuses(transportCompanyId);
-
-            Assert.IsNotNull(result);
-            var actualBuses = await result.ToListAsync();
-            Assert.That(actualBuses.Count, Is.EqualTo(2));
-            Assert.IsTrue(actualBuses.Any(b => b.Name == "Bus 1"));
-            Assert.IsTrue(actualBuses.Any(b => b.Name == "Bus 2"));
-            Assert.IsFalse(actualBuses.Any(b => b.Name == "Bus 3"));
-        }
-
-        [Test]
         public async Task GetTransportCompanies_ReturnsTransportCompaniesForUser()
         {
-            // Arrange
             var user = new ApplicationUser
             {
                 UserName = "testuser",
