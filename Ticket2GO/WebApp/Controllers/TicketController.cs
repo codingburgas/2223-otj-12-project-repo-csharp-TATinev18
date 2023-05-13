@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using WebApp.Areas.Identity.Data;
-using WebApp.Data;
 using WebApp.Models;
 using WebApp.Services.Interfaces;
 using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
-    [Authorize(Roles = "User,Admin,Company Manager")]
+    [Authorize(Roles = "User,Company Manager,Admin  ")]
     public class TicketController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

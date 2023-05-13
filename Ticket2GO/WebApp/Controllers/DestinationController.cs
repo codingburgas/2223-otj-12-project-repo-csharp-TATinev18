@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Data;
 using WebApp.Areas.Identity.Data;
-using WebApp.Data;
 using WebApp.Models;
 using WebApp.Services.Interfaces;
 using WebApp.ViewModels;

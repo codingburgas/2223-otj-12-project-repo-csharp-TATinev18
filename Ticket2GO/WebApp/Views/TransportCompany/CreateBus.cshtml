@@ -17,14 +17,13 @@
         <input asp-for="SeatsNumber" class="form-control" />
         <span asp-validation-for="SeatsNumber" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <input type="submit" value="Добави" class="btn btn-primary"/>
     </div>
 </form>
-
+<br>
 <div>
-    <a asp-action="Buses" asp-route-transportCompanyId="@ViewData["TransportCompanyId"]">Назад</a>
+    <a asp-action="Buses" asp-route-transportCompanyId="@ViewData["TransportCompanyId"]" class="btn btn-secondary">Назад</a>
 </div>
 
 @section Scripts {

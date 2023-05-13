@@ -66,7 +66,7 @@ namespace WebApp.Services
 
             if (originDestination == null)
             {
-                throw new ArgumentException("Invalid origin destination ID.");
+                throw new ArgumentException("Невалидна първоначална дестинация.");
             }
 
             var ticket = new Ticket
@@ -105,7 +105,7 @@ namespace WebApp.Services
 
                 if (returnDestination == null)
                 {
-                    throw new ArgumentException("Invalid return destination.");
+                    throw new ArgumentException("Невалидна дестинация за връщане.");
                 }
 
                 var returnTicketDestination = new TicketDestination
@@ -174,15 +174,34 @@ namespace WebApp.Services
 
         public async Task ConfirmTicket(SelectSeatViewModel model, string userId)
         {
-            var returnDestination = _context.Destinations
-                .Where(d => d.DestinationId == model.SelectedReturnDestinationId)
-                .FirstOrDefault();
+            var destination = await _context.Destinations
+                .Include(d => d.Bus)
+                .FirstOrDefaultAsync(d => d.DestinationId == model.DestinationId);
+
+            if (destination == null || destination.Bus == null)
+            {
+                throw new Exception("Автобус или маршрут не могат да бъдат заредени.");
+            }
+
+            Destination? returnDestination = null;
+
+            if (model.SelectedReturnDestinationId.HasValue)
+            {
+                returnDestination = await _context.Destinations
+                    .Include(d => d.Bus)
+                    .FirstOrDefaultAsync(d => d.DestinationId == model.SelectedReturnDestinationId.Value);
+
+                if (returnDestination == null || returnDestination.Bus == null)
+                {
+                    throw new Exception("Дестинация за обратна посока или автобус не могат да бъдат заредени.");
+                }
+            }
 
             decimal totalPrice = model.Price + (returnDestination?.Price ?? 0);
 
             if (!model.SelectedSeat.HasValue)
             {
-                throw new ArgumentException("Seat number is not specified.");
+                throw new ArgumentException("Номер на място не е избран.");
             }
 
             var ticket = new Ticket
@@ -206,15 +225,39 @@ namespace WebApp.Services
 
             if (model.SelectedReturnDestinationId.HasValue)
             {
+                if (returnDestination == null)
+                {
+                    throw new Exception("Няма опция за връщане.");
+                }
+
+                var availableSeatsForReturnDestination = await GetAvailableSeatsAsync(returnDestination);
+
+                if (!availableSeatsForReturnDestination.Contains(model.SelectedSeat.Value))
+                {
+                    model.SelectedSeat = availableSeatsForReturnDestination.FirstOrDefault();
+
+                    if (!model.SelectedSeat.HasValue)
+                    {
+                        throw new ArgumentException("Няма налични места за тази дестинация.");
+                    }
+
+                    ticket.SeatNumber = model.SelectedSeat.Value;
+
+                    _context.Update(ticket);
+                    await _context.SaveChangesAsync();
+                }
+
                 var ticketDestination2 = new TicketDestination
                 {
                     TicketId = ticket.TicketId,
                     DestinationId = model.SelectedReturnDestinationId.Value
                 };
+
                 _context.TicketsDestinations.Add(ticketDestination2);
                 await _context.SaveChangesAsync();
             }
         }
+
 
         public async Task<List<Ticket>?> GetTickets(string userId)
         {
@@ -244,6 +287,11 @@ namespace WebApp.Services
 
         private async Task<IEnumerable<int>> GetAvailableSeatsAsync(Destination destination)
         {
+            if (destination == null || destination.Bus == null)
+            {
+                throw new ArgumentNullException(nameof(destination), "Дестинацията или автобуса не могат да бъдат без стойност.");
+            }
+
             var destinations = await _context.Destinations
                 .Where(d => d.BusId == destination.BusId && d.Departure.Date == destination.Departure.Date)
                 .Select(d => d.DestinationId)
@@ -257,7 +305,7 @@ namespace WebApp.Services
 
             var availableSeats = Enumerable.Range(1, destination.Bus.SeatsNumber).Where(seat => !takenSeats.Contains(seat)).ToList();
 
-            return availableSeats ?? new List<int>();
+            return availableSeats;
         }
 
         private int GetMaxSeats(Guid destinationId)
@@ -283,9 +331,22 @@ namespace WebApp.Services
                 .Where(d => d.StartingDestination == originDestination.FinalDestination &&
                             d.FinalDestination == originDestination.StartingDestination &&
                             d.Departure <= originDestination.Departure.AddDays(14) &&
-                            d.Departure > originDestination.TimeOfArrival);
+                            d.Departure > originDestination.TimeOfArrival)
+                .ToList();
 
-            return selector(returnDestinations)!;
+            var destinationsWithSeatsAvailable = new List<Destination>();
+
+            foreach (var destination in returnDestinations)
+            {
+                var availableSeats = GetAvailableSeatsAsync(destination).Result;
+
+                if (availableSeats.Any())
+                {
+                    destinationsWithSeatsAvailable.Add(destination);
+                }
+            }
+
+            return selector(destinationsWithSeatsAvailable)!;
         }
 
         private SelectList GetAvailableDestination()

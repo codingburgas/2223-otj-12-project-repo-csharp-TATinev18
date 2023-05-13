@@ -5,16 +5,17 @@ namespace WebApp.ViewModels
 {
     public class CreateDestinationViewModel
     {
-        [Required]
+
+        [Required(ErrorMessage ="Въведете име на началната дестинация")]
         [Display(Name = "Начална дестинация")]
         public string StartingDestination { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Въведете име на крайната дестинация")]
         [Display(Name = "Крайна дестинация")]
         public string FinalDestination { get; set; }
 
         [Required]
-        [TimeSpan(ErrorMessage = "Продължителността трябва да бъде между 00:00:01 и 24:00:00.")]
+        [TimeSpan(ErrorMessage = "Продължителността трябва да бъде между 00:00:01 и 24:00:00 чаоа.")]
         [Display(Name = "Продължителност")]
         public TimeSpan Duration { get; set; }
 
@@ -41,7 +42,7 @@ namespace WebApp.ViewModels
 
         [Required]
         [DataType(DataType.Currency)]
-        [Range(0.01, 9999.99, ErrorMessage = "Цената трябва да бъде между 0.01 and 9999.99")]
+        [Range(0.01, 9999.99, ErrorMessage = "Цената трябва да бъде между 0.01 и 9999.99 лв.")]
         public decimal TotalPrice { get; set; }
 
         public bool DeleteAllRepetitions { get; set; }
