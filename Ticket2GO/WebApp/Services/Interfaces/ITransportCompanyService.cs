@@ -7,7 +7,7 @@ namespace WebApp.Services.Interfaces
     public interface ITransportCompanyService
     {
         public Task<List<TransportCompany>> GetTransportCompanies(ApplicationUser user);
-        public Task CreateTransportCompany(TransportCompanyViewModel viewModel, ApplicationUser user);
+        public Task<bool> CreateTransportCompany(TransportCompanyViewModel viewModel, ApplicationUser user);
         public TransportCompanyAspNetUser? GetCurrentUsersTransportCompany(ApplicationUser currentUser);
         public Task CreateBus(Guid transportCompanyId, CreateBusViewModel viewModel);
         public Task<TransportCompany?> GetTranspoerCompanyDeatils(Guid id);
@@ -17,7 +17,7 @@ namespace WebApp.Services.Interfaces
         public Task DeleteTransportCompany(Guid id, TransportCompany? transportCompany);
         public Task<List<Destination>> GetDestinations(Guid id);
         public TransportCompanyViewModel GenerateTransportCompnayViewModel(TransportCompany? transportCompany);
-        public Task EditTransportCompany(TransportCompanyViewModel viewModel, TransportCompany? transportCompany);
+        public Task<bool> EditTransportCompany(TransportCompanyViewModel viewModel, TransportCompany? transportCompany);
         public Task<List<TransportCompany>> GetAllTransportCompanies();
     }
 }

@@ -46,8 +46,6 @@ namespace WebApp.Controllers
             return View(await _transportCompanyService.GetTransportCompanies(await _userManager.GetUserAsync(HttpContext.User)));
         }
 
-
-
         [HttpGet]
         public IActionResult Create()
         {
@@ -60,7 +58,13 @@ namespace WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _transportCompanyService.CreateTransportCompany(viewModel, await _userManager.GetUserAsync(HttpContext.User));
+                var result = await _transportCompanyService.CreateTransportCompany(viewModel, await _userManager.GetUserAsync(HttpContext.User));
+
+                if (!result)
+                {
+                    ModelState.AddModelError("Name", "Това име вече се използва от друга компания.");
+                    return View(viewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -81,8 +85,6 @@ namespace WebApp.Controllers
 
             return View("Details", userTransportCompany.TransportCompany);
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> Buses(Guid transportCompanyId)
@@ -177,7 +179,12 @@ namespace WebApp.Controllers
                         return NotFound();
                     }
 
-                    await _transportCompanyService.EditTransportCompany(viewModel, transportCompany);
+                    var result = await _transportCompanyService.EditTransportCompany(viewModel, transportCompany);
+                    if (!result)
+                    {
+                        ModelState.AddModelError("Name", "Компания с това име вече съществува.");
+                        return View(viewModel);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

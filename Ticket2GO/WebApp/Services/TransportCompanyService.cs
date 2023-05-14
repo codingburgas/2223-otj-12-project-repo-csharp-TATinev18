@@ -24,11 +24,16 @@ namespace WebApp.Services
                                                           .ToListAsync();
         }
 
-        public async Task CreateTransportCompany(TransportCompanyViewModel viewModel, ApplicationUser user)
+        public async Task<bool> CreateTransportCompany(TransportCompanyViewModel viewModel, ApplicationUser user)
         {
             if (string.IsNullOrEmpty(viewModel.Name) || viewModel.Logo == null)
             {
-                return;
+                return false;
+            }
+
+            if (_context.TransportCompanies.Any(tc => tc.Name == viewModel.Name))
+            {
+                return false;
             }
 
             byte[] logoBytes;
@@ -52,7 +57,7 @@ namespace WebApp.Services
 
             if (user == null || transportCompany == null)
             {
-                return;
+                return false;
             }
 
             var transportCompanyAspNetUser = new TransportCompanyAspNetUser
@@ -63,7 +68,10 @@ namespace WebApp.Services
 
             _context.TransportCompaniesAspNetUsers.Add(transportCompanyAspNetUser);
             await _context.SaveChangesAsync();
+
+            return true;
         }
+
 
         public TransportCompanyAspNetUser? GetCurrentUsersTransportCompany(ApplicationUser currentUser)
         {
@@ -139,11 +147,19 @@ namespace WebApp.Services
             };
         }
 
-        public async Task EditTransportCompany(TransportCompanyViewModel viewModel, TransportCompany? transportCompany)
+        public async Task<bool> EditTransportCompany(TransportCompanyViewModel viewModel, TransportCompany? transportCompany)
         {
             if (transportCompany == null)
             {
-                return;
+                return false;
+            }
+
+            var existingCompany = await _context.TransportCompanies
+                .FirstOrDefaultAsync(c => c.Name == viewModel.Name && c.TransportCompanyId != viewModel.TransportCompanyId);
+
+            if (existingCompany != null)
+            {
+                return false;
             }
 
             transportCompany.Name = viewModel.Name;
@@ -158,6 +174,8 @@ namespace WebApp.Services
 
             _context.Update(transportCompany);
             await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<List<TransportCompany>> GetAllTransportCompanies()
